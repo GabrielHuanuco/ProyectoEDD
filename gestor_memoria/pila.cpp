@@ -16,4 +16,15 @@ void asignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio) //Funcion
     nuevo->siguiente = cima; //El nuevo bloque apunta al que antes era la cima
     cima = nuevo; //Ahora el nuevo bloque es la cima
     cout<<"Memoria asignada correctamente"; //Mensaje que afirma que el proceso fue agregado correctamente
+void LiberarMemoria(BloqueMemoria *&cima) //Funcion para liberar un bloque de memoria
+{
+    if(cima==NULL) //Si el bloque de memoria esta vacia
+    {
+        cout<<"No hay bloques de memoria asignados ";//Mensaje que afirma que no existe ningun bloque de memoria
+        return;
+    }
+    cout<<"Liberando memoria del proceso ID="<< cima->ID_Proceso<<"\n"; //Mensaje que afirme el procesos de liberacion de memoria
+    BloqueMemoria *temp = cima; //Guarda temporalmente el bloque de memoria
+    cima = cima->siguiente; //Mueve la cima al siguiente bloque
+    delete temp; //Elimina el bloque que estaba en la cima
 }
