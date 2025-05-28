@@ -27,4 +27,17 @@ void LiberarMemoria(BloqueMemoria *&cima) //Funcion para liberar un bloque de me
     BloqueMemoria *temp = cima; //Guarda temporalmente el bloque de memoria
     cima = cima->siguiente; //Mueve la cima al siguiente bloque
     delete temp; //Elimina el bloque que estaba en la cima
+void MostrarMemoria(BloqueMemoria *cima) //Funcion para mostrar los bloques de memoria
+{
+    if(cima==NULL)//Si el bloque de memoria esta vacia
+    {
+        cout<<"No hay bloques de memoria asignados \n";//Mensaje que afirma que no existe ningun bloque de memoria
+        return;
+    }
+    cout<<"Bloques de memoria asignados: \n";//Mensaje que afirma el proceso asginado de los bloques de memoria
+    while(cima!=NULL)//Si hay bloques de memoria
+    {
+        cout<<"Proceso ID: "<<cima->ID_Proceso<<", Tamanio: "<<cima->tamanio<<"MB \n";//Mensaje mostrando los bloques de memoria
+        cima = cima->siguiente;//Mueve la cima al siguiente bloque
+    }
 }
