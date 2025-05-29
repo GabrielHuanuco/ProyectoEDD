@@ -2,7 +2,12 @@
 using namespace std;
 
 // -------------------- PLANIFICADOR DE CPU (COLA DE PRIORIDAD) --------------------
-
+ struct Proceso {
+        int id;
+        char nombre[30];
+        int prioridad;
+        Proceso* siguiente;
+    };
 // Estructura para representar un proceso en la cola de prioridad de CPU
 struct NodoCPU
 {
@@ -106,58 +111,50 @@ void mostrarColaCPU(NodoCPU *frente)
     }
 }
 
-int main() {
-    NodoCPU *colaCPU = NULL;
-
-    // Aquí debes tener o crear una lista de procesos previamente
-    // Este es solo un ejemplo para ilustrar el flujo
-    struct Proceso {
-        int id;
-        char nombre[30];
-        int prioridad;
-        Proceso* siguiente;
-    };
-
-    // Simulamos algunos procesos ya creados
-    Proceso* listaProcesos = new Proceso{1, "Proceso1", 3, nullptr};
-    listaProcesos->siguiente = new Proceso{2, "Proceso2", 5, nullptr};
-
+int main()
+{
+    NodoCPU *colaCPU = NULL; // Cola vacía al inicio
     int opcion;
-    do {
-        cout << "\n--- PLANIFICADOR DE CPU ---\n";
-        cout << "1. Encolar proceso existente\n";
-        cout << "2. Ejecutar proceso\n";
-        cout << "3. Ver cola de CPU\n";
-        cout << "4. Volver al menu principal\n";
-        cout << "Seleccione una opcion: ";
+
+    do
+    {
+        cout << "\n--- MENU PLANIFICADOR DE CPU ---\n";
+        cout << "1. Encolar nuevo proceso\n";
+        cout << "2. Mostrar cola de CPU\n";
+        cout << "3. Ejecutar proceso\n";
+        cout << "4. Salir\n";
+        cout << "Seleccione una opción: ";
         cin >> opcion;
+
         switch (opcion)
         {
-        case 1: {
-            int id;
-            cout << "ID del proceso a encolar: ";
+        case 1:
+        {
+            int id, prioridad;
+            char nombre[30];
+
+            cout << "Ingrese ID del proceso: ";
             cin >> id;
-            Proceso* p = listaProcesos;
-            while (p != NULL && p->id != id)
-                p = p->siguiente;
-            if (p == NULL) {
-                cout << "Ese proceso no existe.\n";
-            } else {
-                encolarCPU(colaCPU, p->id, p->nombre, p->prioridad);
-            }
+            cin.ignore(); // Limpiar buffer
+            cout << "Ingrese nombre del proceso: ";
+            cin.getline(nombre, 30);
+            cout << "Ingrese prioridad del proceso: ";
+            cin >> prioridad;
+
+            encolarCPU(colaCPU, id, nombre, prioridad);
             break;
         }
         case 2:
-            ejecutarCPU(colaCPU);
-            break;
-        case 3:
             mostrarColaCPU(colaCPU);
             break;
+        case 3:
+            ejecutarCPU(colaCPU);
+            break;
         case 4:
-            cout << "Volviendo al menu principal...\n";
+            cout << "Saliendo del planificador...\n";
             break;
         default:
-            cout << "Opcion no valida.\n";
+            cout << "Opción inválida. Intente nuevamente.\n";
         }
     } while (opcion != 4);
 
