@@ -2,12 +2,7 @@
 using namespace std;
 
 // -------------------- PLANIFICADOR DE CPU (COLA DE PRIORIDAD) --------------------
-struct Proceso {
-    int id;
-    char nombre[30];
-    int prioridad;
-    Proceso* siguiente;
-};
+
 // Estructura para representar un proceso en la cola de prioridad de CPU
 struct NodoCPU
 {
@@ -111,7 +106,7 @@ void mostrarColaCPU(NodoCPU *frente)
     }
 }
 
-int main(NodoCPU *&colaCPU, Proceso *listaProcesos)
+int main()
 {
     NodoCPU *colaCPU = NULL;
     int opcion;
