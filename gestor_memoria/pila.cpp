@@ -8,7 +8,7 @@ struct BloqueMemoria //Estructura para representar el bloque de memoria
     BloqueMemoria *siguiente; //Puntero al siguiente bloque en la pila
 };
 
-void asignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio) //Funcion para asignar un bloque de memoria
+void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio) //Funcion para asignar un bloque de memoria
 {
     BloqueMemoria *nuevo = new BloqueMemoria; //Se crea un nuevo bloque de memoria
     nuevo->ID_Proceso = ID_Proceso; //Se asigna los nuevos valores
@@ -16,6 +16,7 @@ void asignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio) //Funcion
     nuevo->siguiente = cima; //El nuevo bloque apunta al que antes era la cima
     cima = nuevo; //Ahora el nuevo bloque es la cima
     cout<<"Memoria asignada correctamente"; //Mensaje que afirma que el proceso fue agregado correctamente
+}
 void LiberarMemoria(BloqueMemoria *&cima) //Funcion para liberar un bloque de memoria
 {
     if(cima==NULL) //Si el bloque de memoria esta vacia
@@ -27,6 +28,7 @@ void LiberarMemoria(BloqueMemoria *&cima) //Funcion para liberar un bloque de me
     BloqueMemoria *temp = cima; //Guarda temporalmente el bloque de memoria
     cima = cima->siguiente; //Mueve la cima al siguiente bloque
     delete temp; //Elimina el bloque que estaba en la cima
+}
 void MostrarMemoria(BloqueMemoria *cima) //Funcion para mostrar los bloques de memoria
 {
     if(cima==NULL)//Si el bloque de memoria esta vacia
@@ -40,7 +42,7 @@ void MostrarMemoria(BloqueMemoria *cima) //Funcion para mostrar los bloques de m
         cout<<"Proceso ID: "<<cima->ID_Proceso<<", Tamanio: "<<cima->tamanio<<"MB \n";//Mensaje mostrando los bloques de memoria
         cima = cima->siguiente;//Mueve la cima al siguiente bloque
     }
-
+}
 int main()
 {
     BloqueMemoria *pilaMemoria = NULL;
