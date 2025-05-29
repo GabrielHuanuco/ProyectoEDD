@@ -12,15 +12,32 @@ struct Proceso
     Proceso *siguiente; // Puntero al siguiente proceso en la lista
 };
 
+// Función para comparar dos cadenas de caracteres (sin usar librerías extra)
+// Retorna true si ambas cadenas son iguales, false si son diferentes
+bool compararCadenas(const char a[], const char b[])
+{
+    int i = 0; // Índice para recorrer las cadenas
+    // Recorre ambas cadenas hasta encontrar el final de alguna
+    while (a[i] != '\0' && b[i] != '\0')
+    {
+        if (a[i] != b[i]) // Si algún carácter es diferente, retorna false
+            return false;
+        i++;
+    }
+    // Si ambas cadenas terminaron al mismo tiempo, son iguales
+    return a[i] == b[i];
+}
+
 // Inserta un nuevo proceso al inicio de la lista enlazada
 void insertarProceso(Proceso *&cabeza, int id, const char nombre[], int prioridad)
 {
-    Proceso *nuevo = new Proceso;           // Reserva memoria para el nuevo proceso
-    nuevo->id = id;                         // Asigna el ID al nuevo proceso
-    for (int i = 0; nombre[i] != '\0'; i++) // Copia el nombre caracter por caracter
+    Proceso *nuevo = new Proceso; // Reserva memoria para el nuevo proceso
+    nuevo->id = id;               // Asigna el ID al nuevo proceso
+    // Copia el nombre caracter por caracter
+    for (int i = 0; nombre[i] != '\0'; i++)
     {
-        nuevo->nombre[i] = nombre[i];
-        nuevo->nombre[i + 1] = '\0'; // Asegura el fin de cadena
+        nuevo->nombre[i] = nombre[i]; // Copia cada carácter
+        nuevo->nombre[i + 1] = '\0';  // Asegura el fin de cadena
     }
     nuevo->prioridad = prioridad; // Asigna la prioridad
     nuevo->siguiente = cabeza;    // El nuevo proceso apunta al anterior primer elemento
@@ -32,6 +49,7 @@ void insertarProceso(Proceso *&cabeza, int id, const char nombre[], int priorida
 void buscarProceso(Proceso *cabeza, int idBuscar)
 {
     Proceso *aux = cabeza; // Puntero auxiliar para recorrer la lista
+    // Recorre la lista hasta encontrar el proceso o llegar al final
     while (aux != NULL)
     {
         if (aux->id == idBuscar) // Si encuentra el proceso con el ID buscado
@@ -40,7 +58,7 @@ void buscarProceso(Proceso *cabeza, int idBuscar)
             cout << "ID: " << aux->id << "\n";
             cout << "Nombre: " << aux->nombre << "\n";
             cout << "Prioridad: " << aux->prioridad << "\n";
-            return;
+            return; // Termina la función si lo encuentra
         }
         aux = aux->siguiente; // Avanza al siguiente proceso
     }
@@ -53,18 +71,19 @@ void eliminarProceso(Proceso *&cabeza, int idEliminar)
     Proceso *actual = cabeza; // Puntero al proceso actual
     Proceso *anterior = NULL; // Puntero al proceso anterior
 
+    // Recorre la lista buscando el proceso a eliminar
     while (actual != NULL)
     {
         if (actual->id == idEliminar) // Si encuentra el proceso a eliminar
         {
-            if (anterior == NULL) // Si es el primero de la lista
-                cabeza = actual->siguiente;
+            if (anterior == NULL)           // Si es el primero de la lista
+                cabeza = actual->siguiente; // La cabeza apunta al siguiente
             else
-                anterior->siguiente = actual->siguiente;
+                anterior->siguiente = actual->siguiente; // El anterior salta al siguiente
 
             delete actual; // Libera la memoria del proceso eliminado
             cout << "Proceso eliminado correctamente.\n";
-            return;
+            return; // Termina la función
         }
         anterior = actual;          // Avanza el puntero anterior
         actual = actual->siguiente; // Avanza el puntero actual
@@ -76,32 +95,33 @@ void eliminarProceso(Proceso *&cabeza, int idEliminar)
 void modificarPrioridad(Proceso *cabeza, int idBuscar, int nuevaPrioridad)
 {
     Proceso *aux = cabeza; // Puntero auxiliar para recorrer la lista
+    // Recorre la lista buscando el proceso
     while (aux != NULL)
     {
         if (aux->id == idBuscar) // Si encuentra el proceso
         {
             aux->prioridad = nuevaPrioridad; // Cambia la prioridad
             cout << "Prioridad modificada correctamente.\n";
-            return;
+            return; // Termina la función
         }
         aux = aux->siguiente; // Avanza al siguiente proceso
     }
     cout << "Proceso no encontrado.\n";
 }
 
-// Submenú para gestión de procesos (lista enlazada)
+// -------------------- MENÚ DE PROCESOS --------------------
 void menuProcesos(Proceso *&listaProcesos)
 {
     int opcion; // Variable para almacenar la opción del usuario
     do
     {
         // Muestra el submenú de procesos
-        cout << "\n--- GESTION DE PROCESOS ---\n";
+        cout << "\n--- GESTION DE PROCESOS (LISTA ENLAZADA) ---\n";
         cout << "1. Insertar proceso\n";
         cout << "2. Buscar proceso\n";
         cout << "3. Eliminar proceso\n";
         cout << "4. Modificar prioridad\n";
-        cout << "5. Volver al menu principal\n";
+        cout << "5. Salir\n";
         cout << "Seleccione una opcion: ";
         cin >> opcion;
         switch (opcion)
@@ -129,6 +149,11 @@ void menuProcesos(Proceso *&listaProcesos)
                     if (aux->id == id)
                     {
                         cout << "Ya existe un proceso con ese ID.\n";
+                        existe = true;
+                    }
+                    if (compararCadenas(aux->nombre, nombre))
+                    {
+                        cout << "Ya existe un proceso con ese nombre.\n";
                         existe = true;
                     }
                     if (aux->prioridad == prioridad)
@@ -173,12 +198,20 @@ void menuProcesos(Proceso *&listaProcesos)
             break;
         }
         case 5:
-            cout << "Volviendo al menu principal...\n";
+            cout << "Saliendo del gestor de procesos...\n";
             break;
         default:
             cout << "Opcion no valida.\n";
         }
-    } while (opcion != 5); // Repite hasta que el usuario elija volver
+    } while (opcion != 5); // Repite hasta que el usuario elija salir
 }
 
-Proceso *listaProcesos = NULL; // Lista enlazada de procesos
+// -------------------- MAIN SOLO PARA LISTA ENLAZADA --------------------
+int main()
+{
+    Proceso *listaProcesos = NULL; // Lista enlazada de procesos
+
+    menuProcesos(listaProcesos); // Llama al menú de procesos
+
+    return 0;
+}
