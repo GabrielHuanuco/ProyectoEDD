@@ -106,12 +106,24 @@ void mostrarColaCPU(NodoCPU *frente)
     }
 }
 
-int main()
-{
+int main() {
     NodoCPU *colaCPU = NULL;
+
+    // Aquí debes tener o crear una lista de procesos previamente
+    // Este es solo un ejemplo para ilustrar el flujo
+    struct Proceso {
+        int id;
+        char nombre[30];
+        int prioridad;
+        Proceso* siguiente;
+    };
+
+    // Simulamos algunos procesos ya creados
+    Proceso* listaProcesos = new Proceso{1, "Proceso1", 3, nullptr};
+    listaProcesos->siguiente = new Proceso{2, "Proceso2", 5, nullptr};
+
     int opcion;
-    do
-    {
+    do {
         cout << "\n--- PLANIFICADOR DE CPU ---\n";
         cout << "1. Encolar proceso existente\n";
         cout << "2. Ejecutar proceso\n";
@@ -121,20 +133,16 @@ int main()
         cin >> opcion;
         switch (opcion)
         {
-        case 1:
-        {
+        case 1: {
             int id;
             cout << "ID del proceso a encolar: ";
             cin >> id;
-            Proceso *p = listaProcesos;
+            Proceso* p = listaProcesos;
             while (p != NULL && p->id != id)
                 p = p->siguiente;
-            if (p == NULL)
-            {
-                cout << "Ese proceso no existe. Debe crearlo primero en la gestion de procesos.\n";
-            }
-            else
-            {
+            if (p == NULL) {
+                cout << "Ese proceso no existe.\n";
+            } else {
                 encolarCPU(colaCPU, p->id, p->nombre, p->prioridad);
             }
             break;
@@ -152,4 +160,6 @@ int main()
             cout << "Opcion no valida.\n";
         }
     } while (opcion != 4);
+
+    return 0;
 }
