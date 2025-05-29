@@ -1,4 +1,4 @@
-#include <iostream> // Incluye la librería estándar de entrada/salida
+#include <iostream>
 using namespace std;
 
 // -------------------- GESTOR DE PROCESOS (LISTA ENLAZADA) --------------------
@@ -11,6 +11,19 @@ struct Proceso
     int prioridad;      // Prioridad del proceso
     Proceso *siguiente; // Puntero al siguiente proceso en la lista
 };
+
+// Función para comparar dos cadenas de caracteres (sin usar librerías extra)
+bool compararCadenas(const char a[], const char b[])
+{
+    int i = 0;
+    while (a[i] != '\0' && b[i] != '\0')
+    {
+        if (a[i] != b[i])
+            return false;
+        i++;
+    }
+    return a[i] == b[i];
+}
 
 // Inserta un nuevo proceso al inicio de la lista enlazada
 void insertarProceso(Proceso *&cabeza, int id, const char nombre[], int prioridad)
@@ -89,19 +102,19 @@ void modificarPrioridad(Proceso *cabeza, int idBuscar, int nuevaPrioridad)
     cout << "Proceso no encontrado.\n";
 }
 
-// Submenú para gestión de procesos (lista enlazada)
+// -------------------- MENÚ DE PROCESOS --------------------
 void menuProcesos(Proceso *&listaProcesos)
 {
     int opcion; // Variable para almacenar la opción del usuario
     do
     {
         // Muestra el submenú de procesos
-        cout << "\n--- GESTION DE PROCESOS ---\n";
+        cout << "\n--- GESTION DE PROCESOS (LISTA ENLAZADA) ---\n";
         cout << "1. Insertar proceso\n";
         cout << "2. Buscar proceso\n";
         cout << "3. Eliminar proceso\n";
         cout << "4. Modificar prioridad\n";
-        cout << "5. Volver al menu principal\n";
+        cout << "5. Salir\n";
         cout << "Seleccione una opcion: ";
         cin >> opcion;
         switch (opcion)
@@ -129,6 +142,11 @@ void menuProcesos(Proceso *&listaProcesos)
                     if (aux->id == id)
                     {
                         cout << "Ya existe un proceso con ese ID.\n";
+                        existe = true;
+                    }
+                    if (compararCadenas(aux->nombre, nombre))
+                    {
+                        cout << "Ya existe un proceso con ese nombre.\n";
                         existe = true;
                     }
                     if (aux->prioridad == prioridad)
@@ -173,12 +191,20 @@ void menuProcesos(Proceso *&listaProcesos)
             break;
         }
         case 5:
-            cout << "Volviendo al menu principal...\n";
+            cout << "Saliendo del gestor de procesos...\n";
             break;
         default:
             cout << "Opcion no valida.\n";
         }
-    } while (opcion != 5); // Repite hasta que el usuario elija volver
+    } while (opcion != 5); // Repite hasta que el usuario elija salir
 }
 
-Proceso *listaProcesos = NULL; // Lista enlazada de procesos
+// -------------------- MAIN SOLO PARA LISTA ENLAZADA --------------------
+int main()
+{
+    Proceso *listaProcesos = NULL; // Lista enlazada de procesos
+
+    menuProcesos(listaProcesos); // Llama al menú de procesos
+
+    return 0;
+}
