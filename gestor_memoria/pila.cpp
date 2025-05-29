@@ -40,4 +40,40 @@ void MostrarMemoria(BloqueMemoria *cima) //Funcion para mostrar los bloques de m
         cout<<"Proceso ID: "<<cima->ID_Proceso<<", Tamanio: "<<cima->tamanio<<"MB \n";//Mensaje mostrando los bloques de memoria
         cima = cima->siguiente;//Mueve la cima al siguiente bloque
     }
+
+int main()
+{
+    BloqueMemoria *pilaMemoria = NULL;
+    int op;
+    do
+    {
+        cout<<"\n ---- Gestion de Memoria ---- \n";
+        cout<<"1. Asiganr Memoria \n";
+        cout<<"2. Liberar Memoria \n";
+        cout<<"3. Ver estado de la Memoria \n";
+        cout<<"Seleccione una opcion: ";
+        cin>>op;
+        switch(op)
+        {
+            case 1:
+                int id, tam;
+                cout<<"ID del proceso: ";
+                cin>>id;
+                cout<<"Tamanio en MB: ";
+                cin>>tam;
+                AsignarMemoria(pilaMemoria, id, tam);
+                break;
+            case 2:
+                LiberarMemoria(pilaMemoria);
+                break;
+            case 3:
+                MostrarMemoria(pilaMemoria);
+                break;
+            default:
+                cout<<"Opcion incorrecta \n";
+            
+
+        }
+    }
+    while(op!=4);
 }
