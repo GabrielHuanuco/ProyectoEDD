@@ -2,7 +2,12 @@
 using namespace std;
 
 // -------------------- PLANIFICADOR DE CPU (COLA DE PRIORIDAD) --------------------
-
+struct Proceso {
+    int id;
+    char nombre[30];
+    int prioridad;
+    Proceso* siguiente;
+};
 // Estructura para representar un proceso en la cola de prioridad de CPU
 struct NodoCPU
 {
@@ -104,4 +109,52 @@ void mostrarColaCPU(NodoCPU *frente)
 
         actual = actual->siguiente;  // Avanza al siguiente proceso
     }
+}
+
+int main(NodoCPU *&colaCPU, Proceso *listaProcesos)
+{
+    NodoCPU *colaCPU = NULL;
+    int opcion;
+    do
+    {
+        cout << "\n--- PLANIFICADOR DE CPU ---\n";
+        cout << "1. Encolar proceso existente\n";
+        cout << "2. Ejecutar proceso\n";
+        cout << "3. Ver cola de CPU\n";
+        cout << "4. Volver al menu principal\n";
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
+        switch (opcion)
+        {
+        case 1:
+        {
+            int id;
+            cout << "ID del proceso a encolar: ";
+            cin >> id;
+            Proceso *p = listaProcesos;
+            while (p != NULL && p->id != id)
+                p = p->siguiente;
+            if (p == NULL)
+            {
+                cout << "Ese proceso no existe. Debe crearlo primero en la gestion de procesos.\n";
+            }
+            else
+            {
+                encolarCPU(colaCPU, p->id, p->nombre, p->prioridad);
+            }
+            break;
+        }
+        case 2:
+            ejecutarCPU(colaCPU);
+            break;
+        case 3:
+            mostrarColaCPU(colaCPU);
+            break;
+        case 4:
+            cout << "Volviendo al menu principal...\n";
+            break;
+        default:
+            cout << "Opcion no valida.\n";
+        }
+    } while (opcion != 4);
 }
