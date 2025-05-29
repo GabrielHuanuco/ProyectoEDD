@@ -88,3 +88,100 @@ void modificarPrioridad(Proceso *cabeza, int idBuscar, int nuevaPrioridad)
     }
     cout << "Proceso no encontrado.\n";
 }
+
+// Submenú para gestión de procesos (lista enlazada)
+void menuProcesos(Proceso *&listaProcesos)
+{
+    int opcion; // Variable para almacenar la opción del usuario
+    do
+    {
+        // Muestra el submenú de procesos
+        cout << "\n--- GESTION DE PROCESOS ---\n";
+        cout << "1. Insertar proceso\n";
+        cout << "2. Buscar proceso\n";
+        cout << "3. Eliminar proceso\n";
+        cout << "4. Modificar prioridad\n";
+        cout << "5. Volver al menu principal\n";
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
+        switch (opcion)
+        {
+        case 1:
+        {
+            // Validación para que no se repita ID, nombre o prioridad
+            int id, prioridad;
+            char nombre[30];
+            bool existe;
+            do
+            {
+                existe = false;
+                cout << "ID del proceso: ";
+                cin >> id;
+                cout << "Nombre del proceso: ";
+                cin >> nombre;
+                cout << "Prioridad del proceso: ";
+                cin >> prioridad;
+
+                Proceso *aux = listaProcesos;
+                // Recorre la lista para validar duplicados
+                while (aux != NULL)
+                {
+                    if (aux->id == id)
+                    {
+                        cout << "Ya existe un proceso con ese ID.\n";
+                        existe = true;
+                    }
+                    if (compararCadenas(aux->nombre, nombre))
+                    {
+                        cout << "Ya existe un proceso con ese nombre.\n";
+                        existe = true;
+                    }
+                    if (aux->prioridad == prioridad)
+                    {
+                        cout << "Ya existe un proceso con esa prioridad.\n";
+                        existe = true;
+                    }
+                    aux = aux->siguiente;
+                }
+                if (existe)
+                    cout << "Por favor, ingrese los datos nuevamente.\n";
+            } while (existe);
+
+            // Inserta el proceso si no hay duplicados
+            insertarProceso(listaProcesos, id, nombre, prioridad);
+            break;
+        }
+        case 2:
+        {
+            int id;
+            cout << "ID del proceso a buscar: ";
+            cin >> id;
+            buscarProceso(listaProcesos, id);
+            break;
+        }
+        case 3:
+        {
+            int id;
+            cout << "ID del proceso a eliminar: ";
+            cin >> id;
+            eliminarProceso(listaProcesos, id);
+            break;
+        }
+        case 4:
+        {
+            int id, nueva;
+            cout << "ID del proceso: ";
+            cin >> id;
+            cout << "Nueva prioridad: ";
+            cin >> nueva;
+            modificarPrioridad(listaProcesos, id, nueva);
+            break;
+        }
+        case 5:
+            cout << "Volviendo al menu principal...\n";
+            break;
+        default:
+            cout << "Opcion no valida.\n";
+        }
+    } while (opcion != 5); // Repite hasta que el usuario elija volver
+}
