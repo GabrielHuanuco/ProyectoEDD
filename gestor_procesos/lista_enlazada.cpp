@@ -131,11 +131,6 @@ void menuProcesos(Proceso *&listaProcesos)
                         cout << "Ya existe un proceso con ese ID.\n";
                         existe = true;
                     }
-                    if (compararCadenas(aux->nombre, nombre))
-                    {
-                        cout << "Ya existe un proceso con ese nombre.\n";
-                        existe = true;
-                    }
                     if (aux->prioridad == prioridad)
                     {
                         cout << "Ya existe un proceso con esa prioridad.\n";
