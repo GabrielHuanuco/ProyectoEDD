@@ -63,3 +63,45 @@ void encolarCPU(NodoCPU *&frente, int id, const char nombre[], int prioridad)
     // Mensaje de confirmación al usuario
     cout << "Proceso encolado en la CPU con prioridad " << prioridad << ".\n";
 }
+// Elimina (ejecuta) el primer proceso de la cola (mayor prioridad)
+void ejecutarCPU(NodoCPU *&frente)
+{
+    if (frente == NULL)  // Si no hay procesos en la cola
+    {
+        cout << "No hay procesos en la cola de CPU para ejecutar.\n";
+        return;
+    }
+
+    // Muestra información del proceso que se va a ejecutar
+    cout << "Ejecutando proceso: ID = " << frente->id
+         << ", Nombre = " << frente->nombre
+         << ", Prioridad = " << frente->prioridad << "\n";
+
+    NodoCPU *temp = frente;       // Guarda el nodo que será eliminado
+    frente = frente->siguiente;   // Avanza el frente al siguiente nodo
+    delete temp;                  // Libera la memoria del nodo ejecutado
+}
+
+// Muestra todos los procesos actualmente en la cola de la CPU
+void mostrarColaCPU(NodoCPU *frente)
+{
+    if (frente == NULL)  // Si la cola está vacía
+    {
+        cout << "Cola de CPU vacía.\n";
+        return;
+    }
+
+    cout << "\n--- Cola de procesos en CPU (ordenados por prioridad) ---\n";
+
+    NodoCPU *actual = frente;  // Puntero temporal para recorrer la cola
+
+    // Recorre y muestra cada nodo
+    while (actual != NULL)
+    {
+        cout << "ID: " << actual->id
+             << " | Nombre: " << actual->nombre
+             << " | Prioridad: " << actual->prioridad << "\n";
+
+        actual = actual->siguiente;  // Avanza al siguiente proceso
+    }
+}
