@@ -185,3 +185,5 @@ void menuProcesos(Proceso *&listaProcesos)
         }
     } while (opcion != 5); // Repite hasta que el usuario elija volver
 }
+
+Proceso *listaProcesos = NULL; // Lista enlazada de procesos
