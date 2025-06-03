@@ -1,4 +1,5 @@
-#include <iostream> // Incluye la librería estándar de entrada/salida
+#include <iostream> // Para entrada y salida estándar
+#include <fstream>  // Para manejo de archivos
 using namespace std;
 
 // -------------------- GESTOR DE PROCESOS (LISTA ENLAZADA) --------------------
@@ -12,6 +13,7 @@ struct Proceso
     Proceso *siguiente; // Puntero al siguiente proceso en la lista
 };
 
+// -----------------------------------------------------------------------------
 // Función para comparar dos cadenas de caracteres (sin usar librerías extra)
 // Retorna true si ambas cadenas son iguales, false si son diferentes
 bool compararCadenas(const char a[], const char b[])
@@ -28,24 +30,71 @@ bool compararCadenas(const char a[], const char b[])
     return a[i] == b[i];
 }
 
+// -----------------------------------------------------------------------------
+// Función para guardar todos los procesos de la lista enlazada en un archivo
+// Cada línea del archivo tendrá: id nombre prioridad
+void guardarProcesosEnArchivo(Proceso *cabeza)
+{
+    ofstream archivo("procesos.txt"); // Abre el archivo para escritura (sobrescribe)
+    Proceso *aux = cabeza;
+    while (aux != NULL)
+    {
+        archivo << aux->id << " " << aux->nombre << " " << aux->prioridad << "\n"; // Usar salto de línea
+        aux = aux->siguiente;
+    }
+    archivo.close(); // Cierra el archivo
+}
+
+// -----------------------------------------------------------------------------
+// Función para cargar los procesos desde el archivo al iniciar el programa
+// Inserta cada proceso leído al inicio de la lista enlazada
+void cargarProcesosDesdeArchivo(Proceso *&cabeza)
+{
+    ifstream archivo("procesos.txt"); // Abre el archivo para lectura
+    if (!archivo.is_open())
+        return; // Si no existe el archivo, no hace nada
+
+    int id, prioridad;
+    char nombre[30];
+    // Lee cada línea del archivo y crea un nuevo proceso
+    while (archivo >> id >> nombre >> prioridad)
+    {
+        // Inserta el proceso en la lista enlazada
+        Proceso *nuevo = new Proceso;
+        nuevo->id = id;
+        // Copia el nombre caracter por caracter
+        int i = 0;
+        for (; nombre[i] != '\0'; i++)
+            nuevo->nombre[i] = nombre[i];
+        nuevo->nombre[i] = '\0';
+        nuevo->prioridad = prioridad;
+        nuevo->siguiente = cabeza;
+        cabeza = nuevo;
+    }
+    archivo.close(); // Cierra el archivo
+}
+
+// -----------------------------------------------------------------------------
 // Inserta un nuevo proceso al inicio de la lista enlazada
+// Después de insertar, guarda la lista en el archivo
 void insertarProceso(Proceso *&cabeza, int id, const char nombre[], int prioridad)
 {
     Proceso *nuevo = new Proceso; // Reserva memoria para el nuevo proceso
     nuevo->id = id;               // Asigna el ID al nuevo proceso
     // Copia el nombre caracter por caracter
-    for (int i = 0; nombre[i] != '\0'; i++)
-    {
-        nuevo->nombre[i] = nombre[i]; // Copia cada carácter
-        nuevo->nombre[i + 1] = '\0';  // Asegura el fin de cadena
-    }
+    int i = 0;
+    for (; nombre[i] != '\0'; i++)
+        nuevo->nombre[i] = nombre[i];
+    nuevo->nombre[i] = '\0';      // Asegura el fin de cadena
     nuevo->prioridad = prioridad; // Asigna la prioridad
     nuevo->siguiente = cabeza;    // El nuevo proceso apunta al anterior primer elemento
     cabeza = nuevo;               // El nuevo proceso es ahora la cabeza de la lista
     cout << "Proceso insertado correctamente.\n";
+    guardarProcesosEnArchivo(cabeza); // Guarda la lista actualizada en el archivo
 }
 
-// Busca un proceso por ID en la lista enlazada
+// -----------------------------------------------------------------------------
+// Busca un proceso por ID en la lista enlazada y muestra su información
 void buscarProceso(Proceso *cabeza, int idBuscar)
 {
     Proceso *aux = cabeza; // Puntero auxiliar para recorrer la lista
@@ -65,7 +114,9 @@ void buscarProceso(Proceso *cabeza, int idBuscar)
     cout << "Proceso no encontrado.\n";
 }
 
+// -----------------------------------------------------------------------------
 // Elimina un proceso de la lista enlazada por ID
+// Después de eliminar, guarda la lista en el archivo
 void eliminarProceso(Proceso *&cabeza, int idEliminar)
 {
     Proceso *actual = cabeza; // Puntero al proceso actual
@@ -83,7 +134,8 @@ void eliminarProceso(Proceso *&cabeza, int idEliminar)
 
             delete actual; // Libera la memoria del proceso eliminado
             cout << "Proceso eliminado correctamente.\n";
-            return; // Termina la función
+            guardarProcesosEnArchivo(cabeza); // Guarda la lista actualizada en el archivo
+            return;                           // Termina la función
         }
         anterior = actual;          // Avanza el puntero anterior
         actual = actual->siguiente; // Avanza el puntero actual
@@ -91,7 +143,9 @@ void eliminarProceso(Proceso *&cabeza, int idEliminar)
     cout << "Proceso no encontrado para eliminar.\n";
 }
 
+// -----------------------------------------------------------------------------
 // Modifica la prioridad de un proceso dado su ID
+// (No guarda en archivo porque no se pidió, pero puedes agregarlo si quieres)
 void modificarPrioridad(Proceso *cabeza, int idBuscar, int nuevaPrioridad)
 {
     Proceso *aux = cabeza; // Puntero auxiliar para recorrer la lista
@@ -102,14 +156,16 @@ void modificarPrioridad(Proceso *cabeza, int idBuscar, int nuevaPrioridad)
         {
             aux->prioridad = nuevaPrioridad; // Cambia la prioridad
             cout << "Prioridad modificada correctamente.\n";
-            return; // Termina la función
+            guardarProcesosEnArchivo(cabeza); // Guarda la lista actualizada en el archivo
+            return;                           // Termina la función
         }
         aux = aux->siguiente; // Avanza al siguiente proceso
     }
     cout << "Proceso no encontrado.\n";
 }
 
-// -------------------- MENÚ DE PROCESOS --------------------
+// -----------------------------------------------------------------------------
+// Menú interactivo para gestionar los procesos
 void menuProcesos(Proceso *&listaProcesos)
 {
     int opcion; // Variable para almacenar la opción del usuario
@@ -206,12 +262,12 @@ void menuProcesos(Proceso *&listaProcesos)
     } while (opcion != 5); // Repite hasta que el usuario elija salir
 }
 
-// -------------------- MAIN SOLO PARA LISTA ENLAZADA --------------------
+// -----------------------------------------------------------------------------
+// Función principal: carga los procesos desde archivo y muestra el menú
 int main()
 {
-    Proceso *listaProcesos = NULL; // Lista enlazada de procesos
-
-    menuProcesos(listaProcesos); // Llama al menú de procesos
-
+    Proceso *listaProcesos = NULL;             // Lista enlazada de procesos (vacía al inicio)
+    cargarProcesosDesdeArchivo(listaProcesos); // Carga los procesos guardados en el archivo
+    menuProcesos(listaProcesos);               // Llama al menú de procesos
     return 0;
 }
