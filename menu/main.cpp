@@ -694,5 +694,5 @@ int main()
             cout << "Opcion invalida.\n";
         }
     } while (opcion != 4);
-    return 0;
+    0 return 0;
 }
