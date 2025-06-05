@@ -279,17 +279,27 @@ struct BloqueMemoria
     int tamanio;              // Tamaño del bloque en MB
     BloqueMemoria *siguiente; // Puntero al siguiente bloque en la pila
 };
-
+//Funcion que calcula la cantidad total de memoria actualmente asignada
+int memoriaUsada(BloqueMemoria *cima)
+{
+    int total = 0;  // Se inicializa la variable total en 0 para acumular la memoria usada
+    while (cima != NULL)  //Mientras haya bloques en la pila 
+    {
+        total += cima->tamanio; //Se suma el tamaño del bloque actual al total
+        cima = cima->siguiente; //Se avanza al siguiente bloque en la pila 
+    }
+    return total; //Se devuelve el total acumulado de memoria usada
+}
 // -----------------------------------------------------------------------------
 // Guarda todos los bloques de memoria en un archivo de texto (memoria.txt)
 void guardarMemoriaEnArchivo(BloqueMemoria *cima)
 {
     ofstream archivo("memoria.txt"); // Abre el archivo para escritura
-    BloqueMemoria *aux = cima;
+    BloqueMemoria *aux = cima; // Se declara un puntero auxiliar para recorrer la pila sin modificar el puntero original 
     while (aux != NULL)
     {
         archivo << aux->ID_Proceso << " " << aux->tamanio << "\n"; // Escribe los datos del bloque
-        aux = aux->siguiente;
+        aux = aux->siguiente; //Se avanza al siguiente bloque en la pila
     }
     archivo.close(); // Cierra el archivo
 }
@@ -305,9 +315,9 @@ void cargarMemoriaDesdeArchivo(BloqueMemoria *&cima)
     while (archivo >> id >> tamanio)
     {
         BloqueMemoria *nuevo = new BloqueMemoria; // Reserva memoria para el nuevo bloque
-        nuevo->ID_Proceso = id;
-        nuevo->tamanio = tamanio;
-        nuevo->siguiente = cima;
+        nuevo->ID_Proceso = id; // Se asigna el ID del proceso
+        nuevo->tamanio = tamanio; // Se asigna el tamaño del proceso
+        nuevo->siguiente = cima; // El nuevo bloque apunta al anterior que era la cima
         cima = nuevo; // Inserta el bloque al inicio de la pila
     }
     archivo.close(); // Cierra el archivo
@@ -318,9 +328,9 @@ void cargarMemoriaDesdeArchivo(BloqueMemoria *&cima)
 void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio)
 {
     BloqueMemoria *nuevo = new BloqueMemoria; // Reserva memoria para el nuevo bloque
-    nuevo->ID_Proceso = ID_Proceso;
-    nuevo->tamanio = tamanio;
-    nuevo->siguiente = cima;
+    nuevo->ID_Proceso = ID_Proceso; // Se asigna el ID del proceso
+    nuevo->tamanio = tamanio; // Se asigna el tamaño del proceso
+    nuevo->siguiente = cima; // El nuevo bloque apunta al anterior que era la cima
     cima = nuevo; // El nuevo bloque pasa a ser la cima de la pila
     cout << "Memoria asignada correctamente\n";
     guardarMemoriaEnArchivo(cima); // Guarda la pila actualizada en el archivo
@@ -330,24 +340,24 @@ void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio)
 // Libera el bloque de memoria por ID y guarda en archivo
 void LiberarMemoriaPorID(BloqueMemoria *&cima, int id)
 {
-    if (cima == NULL)
+    if (cima == NULL) // Si no hay bloques asignados
     {
-        cout << "No hay bloques de memoria asignados\n";
+        cout << "No hay bloques de memoria asignados\n"; // Mensaje informando que la lista está vacía
         return;
     }
     BloqueMemoria *actual = cima;   // Puntero temporal para recorrer la pila
     BloqueMemoria *anterior = NULL; // Puntero para rastrear el nodo anterior
-    while (actual != NULL && actual->ID_Proceso != id)
+    while (actual != NULL && actual->ID_Proceso != id) //Busca el nodo que tenga el ID correspondiente 
     {
-        anterior = actual;
-        actual = actual->siguiente;
+        anterior = actual; //Se guarda el nodo actual como "anterior"
+        actual = actual->siguiente; //Se avanza al siguiente nodo
     }
-    if (actual == NULL)
+    if (actual == NULL) //Si se recorrio toda la pila y no se enocntro el ID
     {
-        cout << "No se encontro memoria asignada para ese ID\n";
-        return;
+        cout << "No se encontro memoria asignada para ese ID\n"; //Mensaje de error
+        return; //Salida de la funcion sin ningun cambio
     }
-    if (anterior == NULL)
+    if (anterior == NULL) //
         cima = actual->siguiente; // Si el nodo a eliminar es el primero
     else
         anterior->siguiente = actual->siguiente; // Si el nodo a eliminar está en medio o al final
@@ -360,16 +370,16 @@ void LiberarMemoriaPorID(BloqueMemoria *&cima, int id)
 // Muestra todos los bloques de memoria asignados
 void MostrarMemoria(BloqueMemoria *cima)
 {
-    if (cima == NULL)
+    if (cima == NULL) // Si toda la pila esta vacia
     {
-        cout << "No hay bloques de memoria asignados\n";
-        return;
+        cout << "No hay bloques de memoria asignados\n"; // Mensaje informando que no hay bloques de memoria
+        return; // Sale de la funcion
     }
-    cout << "Bloques de memoria asignados:\n";
-    while (cima != NULL)
+    cout << "Bloques de memoria asignados:\n"; // Mensaje inicial para listar los bloques
+    while (cima != NULL)  // Mientras no se llegue al final de la pila
     {
-        cout << "Proceso ID: " << cima->ID_Proceso << ", Tamanio: " << cima->tamanio << "MB\n";
-        cima = cima->siguiente;
+        cout << "Proceso ID: " << cima->ID_Proceso << ", Tamanio: " << cima->tamanio << "MB\n";  // Muestra el ID del proceso y el tamaño de cada bloque en MB
+        cima = cima->siguiente; // Avanza al siguiente bloque de la pila
     }
 }
 
@@ -377,30 +387,30 @@ void MostrarMemoria(BloqueMemoria *cima)
 // Busca la memoria asignada a un proceso por su ID en la pila de memoria
 int buscarMemoriaPorID(BloqueMemoria *cima, int idBuscar)
 {
-    while (cima != NULL)
+    while (cima != NULL) // Recorre la pila mientras haya nodos
     {
-        if (cima->ID_Proceso == idBuscar)
-            return cima->tamanio;
-        cima = cima->siguiente;
+        if (cima->ID_Proceso == idBuscar)   // Si el ID del proceso coincide con el buscado
+            return cima->tamanio;  // Retorna el tamaño de memoria del proceso
+        cima = cima->siguiente;   // Avanza al siguiente nodo
     }
-    return -1;
+    return -1;  // Si no se encuentra el proceso con el ID buscado, retorna -1
 }
 
 // -----------------------------------------------------------------------------
 // Busca un bloque de memoria por ID de proceso y muestra su información
 void BuscarPorID(BloqueMemoria *cima, int id)
 {
-    while (cima != NULL)
+    while (cima != NULL) // Recorre la pila mientras existan nodos
     {
-        if (cima->ID_Proceso == id)
+        if (cima->ID_Proceso == id) // Si el ID del proceso coincide con el buscado
         {
             cout << "Proceso encontrado: ID=" << cima->ID_Proceso
-                 << ", Tamanio=" << cima->tamanio << "MB\n";
-            return;
+                 << ", Tamanio=" << cima->tamanio << "MB\n"; // Imprime la información del proceso encontrado
+            return; // Termina la función al encontrar el proceso
         }
-        cima = cima->siguiente;
+        cima = cima->siguiente; // Avanza al siguiente nodo
     }
-    cout << "Proceso con ID=" << id << " no encontrado\n";
+    cout << "Proceso con ID=" << id << " no encontrado\n"; // Si no se encontró el proceso, muestra un mensaje indicándolo
 }
 
 // -----------------------------------------------------------------------------
@@ -409,6 +419,9 @@ void menuPilaMemoria()
 {
     BloqueMemoria *pilaMemoria = NULL;      // Puntero inicial a la pila de bloques de memoria
     cargarMemoriaDesdeArchivo(pilaMemoria); // Carga los bloques desde archivo si existen
+    int memoriaTotal;
+    cout << "Ingrese la cantidad total de memoria disponible en MB: ";
+    cin >> memoriaTotal;
     int op;                                 // Variable para guardar la opción del menú
 
     do
@@ -432,8 +445,18 @@ void menuPilaMemoria()
             cin >> id;
             cout << "Tamanio en MB: ";
             cin >> tam;
-            AsignarMemoria(pilaMemoria, id, tam); // Llama a la función para asignar memoria
-            break;
+            int usada = memoriaUsada(pilaMemoria); 
+            // Verifica si la memoria ocupada más la memoria solicitada supera la memoria total disponible
+            if (usada + tam > memoriaTotal) 
+            {
+                cout << "Error: No hay suficiente memoria disponible. "
+                     << "Disponible: " << (memoriaTotal - usada) << "MB\n";
+            }
+            else
+            {
+                AsignarMemoria(pilaMemoria, id, tam); // Si hay suficiente memoria, llama a la función para asignar el bloque al proceso
+            }
+            break; // Finaliza el caso o la ejecución dentro de un switch o loop
         }
         case 2:
         {
