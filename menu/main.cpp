@@ -15,89 +15,93 @@ struct Proceso
 
 // -----------------------------------------------------------------------------
 // Compara dos cadenas de caracteres (sin usar librerías extra)
+// Retorna true si ambas cadenas son iguales, false si son diferentes
 bool compararCadenas(const char a[], const char b[])
 {
-    int i = 0;
+    int i = 0; // Índice para recorrer las cadenas
     while (a[i] != '\0' && b[i] != '\0')
     {
-        if (a[i] != b[i])
+        if (a[i] != b[i]) // Si algún carácter es diferente, retorna false
             return false;
         i++;
     }
-    return a[i] == b[i];
+    return a[i] == b[i]; // Si ambas cadenas terminaron al mismo tiempo, son iguales
 }
 
 // -----------------------------------------------------------------------------
 // Guarda todos los procesos de la lista enlazada en un archivo
+// Cada línea del archivo tendrá: id nombre prioridad
 void guardarProcesosEnArchivo(Proceso *cabeza)
 {
-    ofstream archivo("procesos.txt");
+    ofstream archivo("procesos.txt"); // Abre el archivo para escritura (sobrescribe)
     Proceso *aux = cabeza;
     while (aux != NULL)
     {
-        archivo << aux->id << " " << aux->nombre << " " << aux->prioridad << "\n";
+        archivo << aux->id << " " << aux->nombre << " " << aux->prioridad << "\n"; // Escribe los datos del proceso
         aux = aux->siguiente;
     }
-    archivo.close();
+    archivo.close(); // Cierra el archivo
 }
 
 // -----------------------------------------------------------------------------
 // Carga los procesos desde el archivo al iniciar el programa
+// Inserta cada proceso leído al inicio de la lista enlazada
 void cargarProcesosDesdeArchivo(Proceso *&cabeza)
 {
-    ifstream archivo("procesos.txt");
+    ifstream archivo("procesos.txt"); // Abre el archivo para lectura
     if (!archivo.is_open())
-        return;
+        return; // Si no existe el archivo, no hace nada
+
     int id, prioridad;
     char nombre[30];
     while (archivo >> id >> nombre >> prioridad)
     {
-        Proceso *nuevo = new Proceso;
+        Proceso *nuevo = new Proceso; // Reserva memoria para el nuevo proceso
         nuevo->id = id;
         int i = 0;
         for (; nombre[i] != '\0'; i++)
-            nuevo->nombre[i] = nombre[i];
+            nuevo->nombre[i] = nombre[i]; // Copia el nombre carácter por carácter
         nuevo->nombre[i] = '\0';
         nuevo->prioridad = prioridad;
         nuevo->siguiente = cabeza;
-        cabeza = nuevo;
+        cabeza = nuevo; // Inserta el proceso al inicio de la lista
     }
-    archivo.close();
+    archivo.close(); // Cierra el archivo
 }
 
 // -----------------------------------------------------------------------------
 // Inserta un nuevo proceso al inicio de la lista enlazada y guarda en archivo
 void insertarProceso(Proceso *&cabeza, int id, const char nombre[], int prioridad)
 {
-    Proceso *nuevo = new Proceso;
+    Proceso *nuevo = new Proceso; // Reserva memoria para el nuevo proceso
     nuevo->id = id;
     int i = 0;
     for (; nombre[i] != '\0'; i++)
-        nuevo->nombre[i] = nombre[i];
+        nuevo->nombre[i] = nombre[i]; // Copia el nombre carácter por carácter
     nuevo->nombre[i] = '\0';
     nuevo->prioridad = prioridad;
     nuevo->siguiente = cabeza;
-    cabeza = nuevo;
+    cabeza = nuevo; // El nuevo proceso es ahora la cabeza de la lista
     cout << "Proceso insertado correctamente.\n";
-    guardarProcesosEnArchivo(cabeza);
+    guardarProcesosEnArchivo(cabeza); // Guarda la lista actualizada en el archivo
 }
 
 // -----------------------------------------------------------------------------
 // Busca un proceso por ID en la lista enlazada y muestra su información
 void buscarProceso(Proceso *cabeza, int idBuscar)
 {
-    Proceso *aux = cabeza;
+    Proceso *aux = cabeza; // Puntero auxiliar para recorrer la lista
     while (aux != NULL)
     {
-        if (aux->id == idBuscar)
+        if (aux->id == idBuscar) // Si encuentra el proceso con el ID buscado
         {
             cout << "Proceso encontrado:\n";
             cout << "ID: " << aux->id << "\n";
             cout << "Nombre: " << aux->nombre << "\n";
             cout << "Prioridad: " << aux->prioridad << "\n";
-            return;
+            return; // Termina la función si lo encuentra
         }
-        aux = aux->siguiente;
+        aux = aux->siguiente; // Avanza al siguiente proceso
     }
     cout << "Proceso no encontrado.\n";
 }
@@ -106,23 +110,25 @@ void buscarProceso(Proceso *cabeza, int idBuscar)
 // Elimina un proceso de la lista enlazada por ID y guarda en archivo
 void eliminarProceso(Proceso *&cabeza, int idEliminar)
 {
-    Proceso *actual = cabeza;
-    Proceso *anterior = NULL;
+    Proceso *actual = cabeza; // Puntero al proceso actual
+    Proceso *anterior = NULL; // Puntero al proceso anterior
+
     while (actual != NULL)
     {
-        if (actual->id == idEliminar)
+        if (actual->id == idEliminar) // Si encuentra el proceso a eliminar
         {
             if (anterior == NULL)
-                cabeza = actual->siguiente;
+                cabeza = actual->siguiente; // Si es el primero de la lista
             else
-                anterior->siguiente = actual->siguiente;
-            delete actual;
+                anterior->siguiente = actual->siguiente; // El anterior salta al siguiente
+
+            delete actual; // Libera la memoria del proceso eliminado
             cout << "Proceso eliminado correctamente.\n";
-            guardarProcesosEnArchivo(cabeza);
-            return;
+            guardarProcesosEnArchivo(cabeza); // Guarda la lista actualizada en el archivo
+            return;                           // Termina la función
         }
-        anterior = actual;
-        actual = actual->siguiente;
+        anterior = actual;          // Avanza el puntero anterior
+        actual = actual->siguiente; // Avanza el puntero actual
     }
     cout << "Proceso no encontrado para eliminar.\n";
 }
@@ -131,17 +137,17 @@ void eliminarProceso(Proceso *&cabeza, int idEliminar)
 // Modifica la prioridad de un proceso dado su ID y guarda en archivo
 void modificarPrioridad(Proceso *cabeza, int idBuscar, int nuevaPrioridad)
 {
-    Proceso *aux = cabeza;
+    Proceso *aux = cabeza; // Puntero auxiliar para recorrer la lista
     while (aux != NULL)
     {
-        if (aux->id == idBuscar)
+        if (aux->id == idBuscar) // Si encuentra el proceso
         {
-            aux->prioridad = nuevaPrioridad;
+            aux->prioridad = nuevaPrioridad; // Cambia la prioridad
             cout << "Prioridad modificada correctamente.\n";
-            guardarProcesosEnArchivo(cabeza);
-            return;
+            guardarProcesosEnArchivo(cabeza); // Guarda la lista actualizada en el archivo
+            return;                           // Termina la función
         }
-        aux = aux->siguiente;
+        aux = aux->siguiente; // Avanza al siguiente proceso
     }
     cout << "Proceso no encontrado.\n";
 }
@@ -168,11 +174,12 @@ void mostrarProcesos(Proceso *cabeza)
 // Menú para gestionar procesos (lista enlazada)
 void menuListaEnlazada()
 {
-    Proceso *listaProcesos = NULL;
-    cargarProcesosDesdeArchivo(listaProcesos);
-    int opcion;
+    Proceso *listaProcesos = NULL;             // Lista enlazada de procesos (vacía al inicio)
+    cargarProcesosDesdeArchivo(listaProcesos); // Carga los procesos guardados en el archivo
+    int opcion;                                // Variable para almacenar la opción del usuario
     do
     {
+        // Muestra el submenú de procesos
         cout << "\n--- GESTOR DE PROCESOS (LISTA ENLAZADA) ---\n";
         cout << "1. Insertar proceso\n";
         cout << "2. Buscar proceso\n";
@@ -186,6 +193,7 @@ void menuListaEnlazada()
         {
         case 1:
         {
+            // Validación para que no se repita ID, nombre o prioridad
             int id, prioridad;
             char nombre[30];
             bool existe;
@@ -259,7 +267,7 @@ void menuListaEnlazada()
         default:
             cout << "Opcion no valida.\n";
         }
-    } while (opcion != 6);
+    } while (opcion != 6); // Repite hasta que el usuario elija salir
 }
 
 // ===================== GESTOR DE MEMORIA (PILA) =====================
@@ -276,46 +284,46 @@ struct BloqueMemoria
 // Guarda todos los bloques de memoria en un archivo de texto (memoria.txt)
 void guardarMemoriaEnArchivo(BloqueMemoria *cima)
 {
-    ofstream archivo("memoria.txt");
+    ofstream archivo("memoria.txt"); // Abre el archivo para escritura
     BloqueMemoria *aux = cima;
     while (aux != NULL)
     {
-        archivo << aux->ID_Proceso << " " << aux->tamanio << "\n";
+        archivo << aux->ID_Proceso << " " << aux->tamanio << "\n"; // Escribe los datos del bloque
         aux = aux->siguiente;
     }
-    archivo.close();
+    archivo.close(); // Cierra el archivo
 }
 
 // -----------------------------------------------------------------------------
 // Carga los bloques de memoria desde el archivo al iniciar el programa
 void cargarMemoriaDesdeArchivo(BloqueMemoria *&cima)
 {
-    ifstream archivo("memoria.txt");
+    ifstream archivo("memoria.txt"); // Abre el archivo para lectura
     if (!archivo.is_open())
-        return;
+        return; // Si no existe el archivo, no hace nada
     int id, tamanio;
     while (archivo >> id >> tamanio)
     {
-        BloqueMemoria *nuevo = new BloqueMemoria;
+        BloqueMemoria *nuevo = new BloqueMemoria; // Reserva memoria para el nuevo bloque
         nuevo->ID_Proceso = id;
         nuevo->tamanio = tamanio;
         nuevo->siguiente = cima;
-        cima = nuevo;
+        cima = nuevo; // Inserta el bloque al inicio de la pila
     }
-    archivo.close();
+    archivo.close(); // Cierra el archivo
 }
 
 // -----------------------------------------------------------------------------
 // Asigna un bloque de memoria (push) y guarda en archivo
 void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio)
 {
-    BloqueMemoria *nuevo = new BloqueMemoria;
+    BloqueMemoria *nuevo = new BloqueMemoria; // Reserva memoria para el nuevo bloque
     nuevo->ID_Proceso = ID_Proceso;
     nuevo->tamanio = tamanio;
     nuevo->siguiente = cima;
-    cima = nuevo;
+    cima = nuevo; // El nuevo bloque pasa a ser la cima de la pila
     cout << "Memoria asignada correctamente\n";
-    guardarMemoriaEnArchivo(cima);
+    guardarMemoriaEnArchivo(cima); // Guarda la pila actualizada en el archivo
 }
 
 // -----------------------------------------------------------------------------
@@ -327,8 +335,8 @@ void LiberarMemoriaPorID(BloqueMemoria *&cima, int id)
         cout << "No hay bloques de memoria asignados\n";
         return;
     }
-    BloqueMemoria *actual = cima;
-    BloqueMemoria *anterior = NULL;
+    BloqueMemoria *actual = cima;   // Puntero temporal para recorrer la pila
+    BloqueMemoria *anterior = NULL; // Puntero para rastrear el nodo anterior
     while (actual != NULL && actual->ID_Proceso != id)
     {
         anterior = actual;
@@ -340,12 +348,12 @@ void LiberarMemoriaPorID(BloqueMemoria *&cima, int id)
         return;
     }
     if (anterior == NULL)
-        cima = actual->siguiente;
+        cima = actual->siguiente; // Si el nodo a eliminar es el primero
     else
-        anterior->siguiente = actual->siguiente;
+        anterior->siguiente = actual->siguiente; // Si el nodo a eliminar está en medio o al final
     cout << "Memoria liberada para el proceso ID=" << id << "\n";
-    delete actual;
-    guardarMemoriaEnArchivo(cima);
+    delete actual;                 // Libera la memoria del nodo eliminado
+    guardarMemoriaEnArchivo(cima); // Guarda la pila actualizada en el archivo
 }
 
 // -----------------------------------------------------------------------------
@@ -399,9 +407,10 @@ void BuscarPorID(BloqueMemoria *cima, int id)
 // Menú para gestion de memoria (pila) con búsqueda por ID y opción de salir
 void menuPilaMemoria()
 {
-    BloqueMemoria *pilaMemoria = NULL;
-    cargarMemoriaDesdeArchivo(pilaMemoria);
-    int op;
+    BloqueMemoria *pilaMemoria = NULL;      // Puntero inicial a la pila de bloques de memoria
+    cargarMemoriaDesdeArchivo(pilaMemoria); // Carga los bloques desde archivo si existen
+    int op;                                 // Variable para guardar la opción del menú
+
     do
     {
         // Menú de opciones para la gestión de memoria
@@ -412,7 +421,8 @@ void menuPilaMemoria()
         cout << "4. Buscar Proceso por ID \n";
         cout << "5. Volver al menu principal\n";
         cout << "Seleccione una opcion: ";
-        cin >> op;
+        cin >> op; // Entrada de la opción
+
         switch (op)
         {
         case 1:
@@ -422,7 +432,7 @@ void menuPilaMemoria()
             cin >> id;
             cout << "Tamanio en MB: ";
             cin >> tam;
-            AsignarMemoria(pilaMemoria, id, tam);
+            AsignarMemoria(pilaMemoria, id, tam); // Llama a la función para asignar memoria
             break;
         }
         case 2:
@@ -430,27 +440,27 @@ void menuPilaMemoria()
             int id;
             cout << "Ingrese el ID del proceso a liberar: ";
             cin >> id;
-            LiberarMemoriaPorID(pilaMemoria, id);
+            LiberarMemoriaPorID(pilaMemoria, id); // Llama a la función para liberar por ID
             break;
         }
         case 3:
-            MostrarMemoria(pilaMemoria);
+            MostrarMemoria(pilaMemoria); // Llama a la función para mostrar la memoria
             break;
         case 4:
         {
             int id;
             cout << "Ingrese el ID del proceso a buscar: ";
             cin >> id;
-            BuscarPorID(pilaMemoria, id);
+            BuscarPorID(pilaMemoria, id); // Llama a la función para buscar un ID
             break;
         }
         case 5:
-            cout << "Volviendo al menu principal...\n";
+            cout << "Volviendo al menu principal...\n"; // Mensaje de salida
             break;
         default:
-            cout << "Opcion incorrecta\n";
+            cout << "Opcion incorrecta\n"; // Mensaje si se ingresa una opción inválida
         }
-    } while (op != 5);
+    } while (op != 5); // Se repite el menú hasta que se seleccione salir
 }
 
 // ===================== PLANIFICADOR DE CPU (COLA DE PRIORIDAD) =====================
@@ -458,52 +468,53 @@ void menuPilaMemoria()
 // Estructura para representar un proceso en la cola de CPU
 struct NodoCPU
 {
-    int id;
-    char nombre[30];
-    int prioridad;
-    NodoCPU *siguiente;
+    int id;             // Identificador del proceso
+    char nombre[30];    // Nombre del proceso
+    int prioridad;      // Prioridad del proceso (mayor número = mayor prioridad)
+    NodoCPU *siguiente; // Puntero al siguiente proceso en la cola
 };
 
 // -----------------------------------------------------------------------------
 // Guarda todos los procesos de la cola de CPU en un archivo de texto (cola_cpu.txt)
 void guardarColaCPUEnArchivo(NodoCPU *frente)
 {
-    ofstream archivo("cola_cpu.txt");
+    ofstream archivo("cola_cpu.txt"); // Abre el archivo para escritura
     NodoCPU *aux = frente;
     while (aux != NULL)
     {
-        archivo << aux->id << " " << aux->nombre << " " << aux->prioridad << "\n";
+        archivo << aux->id << " " << aux->nombre << " " << aux->prioridad << "\n"; // Escribe los datos del proceso
         aux = aux->siguiente;
     }
-    archivo.close();
+    archivo.close(); // Cierra el archivo
 }
 
 // -----------------------------------------------------------------------------
 // Carga los procesos de la cola de CPU desde el archivo al iniciar el programa
 void cargarColaCPUDesdeArchivo(NodoCPU *&frente)
 {
-    ifstream archivo("cola_cpu.txt");
+    ifstream archivo("cola_cpu.txt"); // Abre el archivo para lectura
     if (!archivo.is_open())
-        return;
+        return; // Si no existe el archivo, no hace nada
     int id, prioridad;
     char nombre[30];
     while (archivo >> id >> nombre >> prioridad)
     {
-        NodoCPU *nuevo = new NodoCPU;
+        NodoCPU *nuevo = new NodoCPU; // Reserva memoria para el nuevo nodo
         nuevo->id = id;
         int i = 0;
         for (; nombre[i] != '\0'; i++)
-            nuevo->nombre[i] = nombre[i];
+            nuevo->nombre[i] = nombre[i]; // Copia el nombre carácter por carácter
         nuevo->nombre[i] = '\0';
         nuevo->prioridad = prioridad;
         nuevo->siguiente = frente;
-        frente = nuevo;
+        frente = nuevo; // Inserta el nodo al inicio de la cola
     }
-    archivo.close();
+    archivo.close(); // Cierra el archivo
 }
 
 // -----------------------------------------------------------------------------
 // Busca un proceso por ID en la lista enlazada de procesos
+// Retorna true si lo encuentra y copia el nombre y prioridad, false si no existe
 bool obtenerDatosProcesoPorID(Proceso *cabeza, int idBuscar, char nombre[], int &prioridad)
 {
     Proceso *aux = cabeza;
@@ -513,7 +524,7 @@ bool obtenerDatosProcesoPorID(Proceso *cabeza, int idBuscar, char nombre[], int 
         {
             int i = 0;
             for (; aux->nombre[i] != '\0'; i++)
-                nombre[i] = aux->nombre[i];
+                nombre[i] = aux->nombre[i]; // Copia el nombre carácter por carácter
             nombre[i] = '\0';
             prioridad = aux->prioridad;
             return true;
@@ -527,11 +538,11 @@ bool obtenerDatosProcesoPorID(Proceso *cabeza, int idBuscar, char nombre[], int 
 // Crea y retorna un nuevo nodo (proceso) con los datos dados
 NodoCPU *crearNodoCPU(int id, const char nombre[], int prioridad)
 {
-    NodoCPU *nuevo = new NodoCPU;
+    NodoCPU *nuevo = new NodoCPU; // Reserva memoria para el nuevo nodo
     nuevo->id = id;
     int i = 0;
     for (; nombre[i] != '\0'; i++)
-        nuevo->nombre[i] = nombre[i];
+        nuevo->nombre[i] = nombre[i]; // Copia el nombre carácter por carácter
     nuevo->nombre[i] = '\0';
     nuevo->prioridad = prioridad;
     nuevo->siguiente = NULL;
@@ -542,26 +553,26 @@ NodoCPU *crearNodoCPU(int id, const char nombre[], int prioridad)
 // Inserta un proceso en la cola, manteniendo el orden por prioridad (mayor primero)
 void encolarCPU(NodoCPU *&frente, int id, const char nombre[], int prioridad)
 {
-    NodoCPU *nuevo = crearNodoCPU(id, nombre, prioridad);
+    NodoCPU *nuevo = crearNodoCPU(id, nombre, prioridad); // Crea un nuevo nodo
     if (frente == NULL || prioridad > frente->prioridad)
     {
-        nuevo->siguiente = frente;
-        frente = nuevo;
+        nuevo->siguiente = frente; // El nuevo nodo apunta al frente actual
+        frente = nuevo;            // El nuevo nodo se convierte en el nuevo frente
     }
     else
     {
-        NodoCPU *actual = frente;
-        NodoCPU *anterior = NULL;
+        NodoCPU *actual = frente; // Apuntador temporal al frente
+        NodoCPU *anterior = NULL; // Apuntador al nodo anterior
         while (actual != NULL && actual->prioridad >= prioridad)
         {
-            anterior = actual;
-            actual = actual->siguiente;
+            anterior = actual;          // Guarda el nodo actual como anterior
+            actual = actual->siguiente; // Avanza al siguiente nodo
         }
-        anterior->siguiente = nuevo;
+        anterior->siguiente = nuevo; // Inserta el nuevo nodo entre anterior y actual
         nuevo->siguiente = actual;
     }
     cout << "Proceso encolado en la CPU con prioridad " << prioridad << ".\n";
-    guardarColaCPUEnArchivo(frente);
+    guardarColaCPUEnArchivo(frente); // Guarda la cola actualizada en el archivo
 }
 
 // -----------------------------------------------------------------------------
@@ -576,10 +587,10 @@ void ejecutarCPU(NodoCPU *&frente)
     cout << "Ejecutando proceso: ID = " << frente->id
          << ", Nombre = " << frente->nombre
          << ", Prioridad = " << frente->prioridad << "\n";
-    NodoCPU *temp = frente;
-    frente = frente->siguiente;
-    delete temp;
-    guardarColaCPUEnArchivo(frente);
+    NodoCPU *temp = frente;          // Guarda el nodo que será eliminado
+    frente = frente->siguiente;      // Avanza el frente al siguiente nodo
+    delete temp;                     // Libera la memoria del nodo ejecutado
+    guardarColaCPUEnArchivo(frente); // Guarda la cola actualizada en el archivo
 }
 
 // -----------------------------------------------------------------------------
@@ -626,13 +637,13 @@ void mostrarColaCPU(NodoCPU *frente)
 // Menú para el planificador de CPU (cola de prioridad)
 void menuColaCPU()
 {
-    NodoCPU *colaCPU = NULL;
-    cargarColaCPUDesdeArchivo(colaCPU);
+    NodoCPU *colaCPU = NULL;            // Cola vacía al inicio
+    cargarColaCPUDesdeArchivo(colaCPU); // Carga los procesos guardados en el archivo
 
-    Proceso *listaProcesos = NULL;
-    cargarProcesosDesdeArchivo(listaProcesos);
+    Proceso *listaProcesos = NULL;             // Lista enlazada de procesos para consulta
+    cargarProcesosDesdeArchivo(listaProcesos); // Carga los procesos guardados en el archivo
 
-    int opcion;
+    int opcion; // Variable para almacenar la opción del usuario
     do
     {
         cout << "\n--- PLANIFICADOR DE CPU (COLA DE PRIORIDAD) ---\n";
@@ -676,16 +687,17 @@ void menuColaCPU()
         default:
             cout << "Opcion invalida.\n";
         }
-    } while (opcion != 4);
+    } while (opcion != 4); // Repite hasta que el usuario elija salir
 }
 
 // ===================== MENÚ PRINCIPAL =====================
 
 int main()
 {
-    int opcion;
+    int opcion; // Variable para almacenar la opción del usuario
     do
     {
+        // Menú principal del sistema
         cout << "\n======= MENU PRINCIPAL DEL SISTEMA =======\n";
         cout << "1. Gestor de procesos (Lista enlazada)\n";
         cout << "2. Gestion de memoria (Pila)\n";
@@ -696,13 +708,13 @@ int main()
         switch (opcion)
         {
         case 1:
-            menuListaEnlazada();
+            menuListaEnlazada(); // Llama al menú de procesos
             break;
         case 2:
-            menuPilaMemoria();
+            menuPilaMemoria(); // Llama al menú de memoria
             break;
         case 3:
-            menuColaCPU();
+            menuColaCPU(); // Llama al menú de CPU
             break;
         case 4:
             cout << "Saliendo del sistema...\n";
@@ -710,6 +722,6 @@ int main()
         default:
             cout << "Opcion invalida.\n";
         }
-    } while (opcion != 4);
-    return 0;
+    } while (opcion != 4); // Repite hasta que el usuario elija salir
+    return 0; // Fin del programa
 }
