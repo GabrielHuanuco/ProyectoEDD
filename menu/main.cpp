@@ -15,48 +15,44 @@ struct Proceso
 
 // -----------------------------------------------------------------------------
 // Compara dos cadenas de caracteres (sin usar librerías extra)
-// Retorna true si ambas cadenas son iguales, false si son diferentes
 bool compararCadenas(const char a[], const char b[])
 {
-    int i = 0; // Índice para recorrer las cadenas
+    int i = 0;
     while (a[i] != '\0' && b[i] != '\0')
     {
-        if (a[i] != b[i]) // Si algún carácter es diferente, retorna false
+        if (a[i] != b[i])
             return false;
         i++;
     }
-    return a[i] == b[i]; // True si ambas cadenas terminaron al mismo tiempo
+    return a[i] == b[i];
 }
 
 // -----------------------------------------------------------------------------
 // Guarda todos los procesos de la lista enlazada en un archivo
-// Cada línea del archivo tendrá: id nombre prioridad
 void guardarProcesosEnArchivo(Proceso *cabeza)
 {
-    ofstream archivo("procesos.txt"); // Abre el archivo para escritura (sobrescribe)
-    Proceso *aux = cabeza;            // Puntero auxiliar para recorrer la lista
+    ofstream archivo("procesos.txt");
+    Proceso *aux = cabeza;
     while (aux != NULL)
     {
         archivo << aux->id << " " << aux->nombre << " " << aux->prioridad << "\n";
         aux = aux->siguiente;
     }
-    archivo.close(); // Cierra el archivo
+    archivo.close();
 }
 
 // -----------------------------------------------------------------------------
 // Carga los procesos desde el archivo al iniciar el programa
-// Inserta cada proceso leído al inicio de la lista enlazada
 void cargarProcesosDesdeArchivo(Proceso *&cabeza)
 {
-    ifstream archivo("procesos.txt"); // Abre el archivo para lectura
+    ifstream archivo("procesos.txt");
     if (!archivo.is_open())
-        return; // Si no existe el archivo, no hace nada
-
+        return;
     int id, prioridad;
     char nombre[30];
     while (archivo >> id >> nombre >> prioridad)
     {
-        Proceso *nuevo = new Proceso; // Reserva memoria para el nuevo proceso
+        Proceso *nuevo = new Proceso;
         nuevo->id = id;
         int i = 0;
         for (; nombre[i] != '\0'; i++)
@@ -66,7 +62,7 @@ void cargarProcesosDesdeArchivo(Proceso *&cabeza)
         nuevo->siguiente = cabeza;
         cabeza = nuevo;
     }
-    archivo.close(); // Cierra el archivo
+    archivo.close();
 }
 
 // -----------------------------------------------------------------------------
@@ -83,7 +79,7 @@ void insertarProceso(Proceso *&cabeza, int id, const char nombre[], int priorida
     nuevo->siguiente = cabeza;
     cabeza = nuevo;
     cout << "Proceso insertado correctamente.\n";
-    guardarProcesosEnArchivo(cabeza); // Guarda la lista actualizada en el archivo
+    guardarProcesosEnArchivo(cabeza);
 }
 
 // -----------------------------------------------------------------------------
@@ -280,14 +276,14 @@ struct BloqueMemoria
 // Guarda todos los bloques de memoria en un archivo de texto (memoria.txt)
 void guardarMemoriaEnArchivo(BloqueMemoria *cima)
 {
-    ofstream archivo("memoria.txt"); // Abre el archivo para escritura (sobrescribe)
+    ofstream archivo("memoria.txt");
     BloqueMemoria *aux = cima;
     while (aux != NULL)
     {
         archivo << aux->ID_Proceso << " " << aux->tamanio << "\n";
         aux = aux->siguiente;
     }
-    archivo.close(); // Cierra el archivo
+    archivo.close();
 }
 
 // -----------------------------------------------------------------------------
@@ -319,23 +315,37 @@ void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio)
     nuevo->siguiente = cima;
     cima = nuevo;
     cout << "Memoria asignada correctamente\n";
-    guardarMemoriaEnArchivo(cima); // Guarda la pila actualizada en el archivo
+    guardarMemoriaEnArchivo(cima);
 }
 
 // -----------------------------------------------------------------------------
-// Libera el bloque de memoria superior (pop) y guarda en archivo
-void LiberarMemoria(BloqueMemoria *&cima)
+// Libera el bloque de memoria por ID y guarda en archivo
+void LiberarMemoriaPorID(BloqueMemoria *&cima, int id)
 {
     if (cima == NULL)
     {
         cout << "No hay bloques de memoria asignados\n";
         return;
     }
-    cout << "Liberando memoria del proceso ID=" << cima->ID_Proceso << "\n";
-    BloqueMemoria *temp = cima;
-    cima = cima->siguiente;
-    delete temp;
-    guardarMemoriaEnArchivo(cima); // Guarda la pila actualizada en el archivo
+    BloqueMemoria *actual = cima;
+    BloqueMemoria *anterior = NULL;
+    while (actual != NULL && actual->ID_Proceso != id)
+    {
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+    if (actual == NULL)
+    {
+        cout << "No se encontro memoria asignada para ese ID\n";
+        return;
+    }
+    if (anterior == NULL)
+        cima = actual->siguiente;
+    else
+        anterior->siguiente = actual->siguiente;
+    cout << "Memoria liberada para el proceso ID=" << id << "\n";
+    delete actual;
+    guardarMemoriaEnArchivo(cima);
 }
 
 // -----------------------------------------------------------------------------
@@ -376,7 +386,6 @@ void cargarMemoriaDesdeArchivoSoloLectura(BloqueMemoria *&cima)
 
 // -----------------------------------------------------------------------------
 // Busca la memoria asignada a un proceso por su ID en la pila de memoria
-// Retorna el tamaño en MB si existe, o -1 si no tiene memoria asignada
 int buscarMemoriaPorID(BloqueMemoria *cima, int idBuscar)
 {
     while (cima != NULL)
@@ -385,11 +394,12 @@ int buscarMemoriaPorID(BloqueMemoria *cima, int idBuscar)
             return cima->tamanio;
         cima = cima->siguiente;
     }
-    return -1; // No tiene memoria asignada
+    return -1;
 }
 
 // -----------------------------------------------------------------------------
 // Menú para gestion de memoria (pila)
+// Ahora al liberar memoria pide el ID del proceso a liberar
 void menuPilaMemoria()
 {
     BloqueMemoria *pilaMemoria = NULL;
@@ -399,7 +409,7 @@ void menuPilaMemoria()
     {
         cout << "\n ---- Gestion de Memoria ---- \n";
         cout << "1. Asignar Memoria \n";
-        cout << "2. Liberar Memoria \n";
+        cout << "2. Liberar Memoria por ID\n";
         cout << "3. Ver estado de la Memoria \n";
         cout << "4. Volver al menu principal\n";
         cout << "Seleccione una opcion: ";
@@ -417,8 +427,13 @@ void menuPilaMemoria()
             break;
         }
         case 2:
-            LiberarMemoria(pilaMemoria);
+        {
+            int id;
+            cout << "Ingrese el ID del proceso a liberar: ";
+            cin >> id;
+            LiberarMemoriaPorID(pilaMemoria, id);
             break;
+        }
         case 3:
             MostrarMemoria(pilaMemoria);
             break;
@@ -433,27 +448,26 @@ void menuPilaMemoria()
 
 // ===================== PLANIFICADOR DE CPU (COLA DE PRIORIDAD) =====================
 
-// Estructura para representar un proceso en la cola de prioridad de CPU
 struct NodoCPU
 {
-    int id;             // Identificador del proceso
-    char nombre[30];    // Nombre del proceso
-    int prioridad;      // Prioridad del proceso (mayor número = mayor prioridad)
-    NodoCPU *siguiente; // Puntero al siguiente proceso en la cola
+    int id;
+    char nombre[30];
+    int prioridad;
+    NodoCPU *siguiente;
 };
 
 // -----------------------------------------------------------------------------
 // Guarda todos los procesos de la cola de CPU en un archivo de texto (cola_cpu.txt)
 void guardarColaCPUEnArchivo(NodoCPU *frente)
 {
-    ofstream archivo("cola_cpu.txt"); // Abre el archivo para escritura (sobrescribe)
+    ofstream archivo("cola_cpu.txt");
     NodoCPU *aux = frente;
     while (aux != NULL)
     {
         archivo << aux->id << " " << aux->nombre << " " << aux->prioridad << "\n";
         aux = aux->siguiente;
     }
-    archivo.close(); // Cierra el archivo
+    archivo.close();
 }
 
 // -----------------------------------------------------------------------------
@@ -482,7 +496,6 @@ void cargarColaCPUDesdeArchivo(NodoCPU *&frente)
 
 // -----------------------------------------------------------------------------
 // Busca un proceso por ID en la lista enlazada de procesos
-// Retorna true y copia nombre y prioridad si lo encuentra, false si no
 bool obtenerDatosProcesoPorID(Proceso *cabeza, int idBuscar, char nombre[], int &prioridad)
 {
     Proceso *aux = cabeza;
@@ -540,7 +553,7 @@ void encolarCPU(NodoCPU *&frente, int id, const char nombre[], int prioridad)
         nuevo->siguiente = actual;
     }
     cout << "Proceso encolado en la CPU con prioridad " << prioridad << ".\n";
-    guardarColaCPUEnArchivo(frente); // Guarda la cola actualizada en el archivo
+    guardarColaCPUEnArchivo(frente);
 }
 
 // -----------------------------------------------------------------------------
@@ -558,7 +571,7 @@ void ejecutarCPU(NodoCPU *&frente)
     NodoCPU *temp = frente;
     frente = frente->siguiente;
     delete temp;
-    guardarColaCPUEnArchivo(frente); // Guarda la cola actualizada en el archivo
+    guardarColaCPUEnArchivo(frente);
 }
 
 // -----------------------------------------------------------------------------
@@ -603,13 +616,11 @@ void mostrarColaCPU(NodoCPU *frente)
 
 // -----------------------------------------------------------------------------
 // Menú para el planificador de CPU (cola de prioridad)
-// Solo permite encolar procesos que ya existen en procesos.txt
 void menuColaCPU()
 {
     NodoCPU *colaCPU = NULL;
-    cargarColaCPUDesdeArchivo(colaCPU); // Carga la cola desde el archivo al iniciar
+    cargarColaCPUDesdeArchivo(colaCPU);
 
-    // Cargar la lista de procesos para consultar sus datos
     Proceso *listaProcesos = NULL;
     cargarProcesosDesdeArchivo(listaProcesos);
 
@@ -627,7 +638,6 @@ void menuColaCPU()
         {
         case 1:
         {
-            // Mostrar procesos disponibles para encolar
             cout << "\nProcesos disponibles para encolar:\n";
             mostrarProcesos(listaProcesos);
 
@@ -636,7 +646,6 @@ void menuColaCPU()
             cout << "Ingrese el ID del proceso a encolar: ";
             cin >> id;
 
-            // Buscar el proceso en la lista enlazada
             if (obtenerDatosProcesoPorID(listaProcesos, id, nombre, prioridad))
             {
                 encolarCPU(colaCPU, id, nombre, prioridad);
