@@ -356,6 +356,39 @@ void MostrarMemoria(BloqueMemoria *cima)
 }
 
 // -----------------------------------------------------------------------------
+// Carga la pila de memoria desde memoria.txt (solo para consulta)
+void cargarMemoriaDesdeArchivoSoloLectura(BloqueMemoria *&cima)
+{
+    ifstream archivo("memoria.txt");
+    if (!archivo.is_open())
+        return;
+    int id, tamanio;
+    while (archivo >> id >> tamanio)
+    {
+        BloqueMemoria *nuevo = new BloqueMemoria;
+        nuevo->ID_Proceso = id;
+        nuevo->tamanio = tamanio;
+        nuevo->siguiente = cima;
+        cima = nuevo;
+    }
+    archivo.close();
+}
+
+// -----------------------------------------------------------------------------
+// Busca la memoria asignada a un proceso por su ID en la pila de memoria
+// Retorna el tamaño en MB si existe, o -1 si no tiene memoria asignada
+int buscarMemoriaPorID(BloqueMemoria *cima, int idBuscar)
+{
+    while (cima != NULL)
+    {
+        if (cima->ID_Proceso == idBuscar)
+            return cima->tamanio;
+        cima = cima->siguiente;
+    }
+    return -1; // No tiene memoria asignada
+}
+
+// -----------------------------------------------------------------------------
 // Menú para gestion de memoria (pila)
 void menuPilaMemoria()
 {
@@ -448,6 +481,28 @@ void cargarColaCPUDesdeArchivo(NodoCPU *&frente)
 }
 
 // -----------------------------------------------------------------------------
+// Busca un proceso por ID en la lista enlazada de procesos
+// Retorna true y copia nombre y prioridad si lo encuentra, false si no
+bool obtenerDatosProcesoPorID(Proceso *cabeza, int idBuscar, char nombre[], int &prioridad)
+{
+    Proceso *aux = cabeza;
+    while (aux != NULL)
+    {
+        if (aux->id == idBuscar)
+        {
+            int i = 0;
+            for (; aux->nombre[i] != '\0'; i++)
+                nombre[i] = aux->nombre[i];
+            nombre[i] = '\0';
+            prioridad = aux->prioridad;
+            return true;
+        }
+        aux = aux->siguiente;
+    }
+    return false;
+}
+
+// -----------------------------------------------------------------------------
 // Crea y retorna un nuevo nodo (proceso) con los datos dados
 NodoCPU *crearNodoCPU(int id, const char nombre[], int prioridad)
 {
@@ -508,6 +563,7 @@ void ejecutarCPU(NodoCPU *&frente)
 
 // -----------------------------------------------------------------------------
 // Muestra todos los procesos actualmente en la cola de la CPU
+// Ahora también muestra la memoria asignada a cada proceso
 void mostrarColaCPU(NodoCPU *frente)
 {
     if (frente == NULL)
@@ -515,28 +571,53 @@ void mostrarColaCPU(NodoCPU *frente)
         cout << "Cola de CPU vacia.\n";
         return;
     }
+    // Cargar la pila de memoria para consultar la memoria de cada proceso
+    BloqueMemoria *pilaMemoria = NULL;
+    cargarMemoriaDesdeArchivoSoloLectura(pilaMemoria);
+
     cout << "\n--- Cola de procesos en CPU (ordenados por prioridad) ---\n";
     NodoCPU *actual = frente;
     while (actual != NULL)
     {
+        // Buscar la memoria asignada a este proceso
+        int memoria = buscarMemoriaPorID(pilaMemoria, actual->id);
         cout << "ID: " << actual->id
              << " | Nombre: " << actual->nombre
-             << " | Prioridad: " << actual->prioridad << "\n";
+             << " | Prioridad: " << actual->prioridad;
+        if (memoria != -1)
+            cout << " | Memoria asignada: " << memoria << "MB";
+        else
+            cout << " | Memoria asignada: Ninguna";
+        cout << "\n";
         actual = actual->siguiente;
+    }
+
+    // Liberar la pila temporal de memoria usada solo para mostrar
+    while (pilaMemoria != NULL)
+    {
+        BloqueMemoria *temp = pilaMemoria;
+        pilaMemoria = pilaMemoria->siguiente;
+        delete temp;
     }
 }
 
 // -----------------------------------------------------------------------------
 // Menú para el planificador de CPU (cola de prioridad)
+// Solo permite encolar procesos que ya existen en procesos.txt
 void menuColaCPU()
 {
     NodoCPU *colaCPU = NULL;
     cargarColaCPUDesdeArchivo(colaCPU); // Carga la cola desde el archivo al iniciar
+
+    // Cargar la lista de procesos para consultar sus datos
+    Proceso *listaProcesos = NULL;
+    cargarProcesosDesdeArchivo(listaProcesos);
+
     int opcion;
     do
     {
         cout << "\n--- PLANIFICADOR DE CPU (COLA DE PRIORIDAD) ---\n";
-        cout << "1. Encolar nuevo proceso\n";
+        cout << "1. Encolar proceso existente\n";
         cout << "2. Mostrar cola de CPU\n";
         cout << "3. Ejecutar proceso\n";
         cout << "4. Volver al menu principal\n";
@@ -546,15 +627,24 @@ void menuColaCPU()
         {
         case 1:
         {
+            // Mostrar procesos disponibles para encolar
+            cout << "\nProcesos disponibles para encolar:\n";
+            mostrarProcesos(listaProcesos);
+
             int id, prioridad;
             char nombre[30];
-            cout << "Ingrese ID del proceso: ";
+            cout << "Ingrese el ID del proceso a encolar: ";
             cin >> id;
-            cout << "Ingrese nombre del proceso: ";
-            cin >> nombre;
-            cout << "Ingrese prioridad del proceso: ";
-            cin >> prioridad;
-            encolarCPU(colaCPU, id, nombre, prioridad);
+
+            // Buscar el proceso en la lista enlazada
+            if (obtenerDatosProcesoPorID(listaProcesos, id, nombre, prioridad))
+            {
+                encolarCPU(colaCPU, id, nombre, prioridad);
+            }
+            else
+            {
+                cout << "No existe un proceso con ese ID. No se puede encolar.\n";
+            }
             break;
         }
         case 2:
