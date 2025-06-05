@@ -411,7 +411,7 @@ int menuPilaMemoria()
                 break;
             }
             case 5:
-                cout << "Saliendo del programa...\n"; // Mensaje de salida
+                cout << "Volviendo al Menu Principal...\n"; // Mensaje de salida
                 break;
             default:
                 cout << "Opcion incorrecta\n"; // Mensaje si se ingresa una opción inválida
