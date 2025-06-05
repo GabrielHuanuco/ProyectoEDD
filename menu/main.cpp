@@ -366,25 +366,6 @@ void MostrarMemoria(BloqueMemoria *cima)
 }
 
 // -----------------------------------------------------------------------------
-// Carga la pila de memoria desde memoria.txt (solo para consulta)
-void cargarMemoriaDesdeArchivoSoloLectura(BloqueMemoria *&cima)
-{
-    ifstream archivo("memoria.txt");
-    if (!archivo.is_open())
-        return;
-    int id, tamanio;
-    while (archivo >> id >> tamanio)
-    {
-        BloqueMemoria *nuevo = new BloqueMemoria;
-        nuevo->ID_Proceso = id;
-        nuevo->tamanio = tamanio;
-        nuevo->siguiente = cima;
-        cima = nuevo;
-    }
-    archivo.close();
-}
-
-// -----------------------------------------------------------------------------
 // Busca la memoria asignada a un proceso por su ID en la pila de memoria
 int buscarMemoriaPorID(BloqueMemoria *cima, int idBuscar)
 {
@@ -398,8 +379,24 @@ int buscarMemoriaPorID(BloqueMemoria *cima, int idBuscar)
 }
 
 // -----------------------------------------------------------------------------
-// Menú para gestion de memoria (pila)
-// Ahora al liberar memoria pide el ID del proceso a liberar
+// Busca un bloque de memoria por ID de proceso y muestra su información
+void BuscarPorID(BloqueMemoria *cima, int id)
+{
+    while (cima != NULL)
+    {
+        if (cima->ID_Proceso == id)
+        {
+            cout << "Proceso encontrado: ID=" << cima->ID_Proceso
+                 << ", Tamanio=" << cima->tamanio << "MB\n";
+            return;
+        }
+        cima = cima->siguiente;
+    }
+    cout << "Proceso con ID=" << id << " no encontrado\n";
+}
+
+// -----------------------------------------------------------------------------
+// Menú para gestion de memoria (pila) con búsqueda por ID y opción de salir
 void menuPilaMemoria()
 {
     BloqueMemoria *pilaMemoria = NULL;
@@ -407,11 +404,13 @@ void menuPilaMemoria()
     int op;
     do
     {
+        // Menú de opciones para la gestión de memoria
         cout << "\n ---- Gestion de Memoria ---- \n";
         cout << "1. Asignar Memoria \n";
         cout << "2. Liberar Memoria por ID\n";
         cout << "3. Ver estado de la Memoria \n";
-        cout << "4. Volver al menu principal\n";
+        cout << "4. Buscar Proceso por ID \n";
+        cout << "5. Volver al menu principal\n";
         cout << "Seleccione una opcion: ";
         cin >> op;
         switch (op)
@@ -438,16 +437,25 @@ void menuPilaMemoria()
             MostrarMemoria(pilaMemoria);
             break;
         case 4:
+        {
+            int id;
+            cout << "Ingrese el ID del proceso a buscar: ";
+            cin >> id;
+            BuscarPorID(pilaMemoria, id);
+            break;
+        }
+        case 5:
             cout << "Volviendo al menu principal...\n";
             break;
         default:
             cout << "Opcion incorrecta\n";
         }
-    } while (op != 4);
+    } while (op != 5);
 }
 
 // ===================== PLANIFICADOR DE CPU (COLA DE PRIORIDAD) =====================
 
+// Estructura para representar un proceso en la cola de CPU
 struct NodoCPU
 {
     int id;
@@ -586,7 +594,7 @@ void mostrarColaCPU(NodoCPU *frente)
     }
     // Cargar la pila de memoria para consultar la memoria de cada proceso
     BloqueMemoria *pilaMemoria = NULL;
-    cargarMemoriaDesdeArchivoSoloLectura(pilaMemoria);
+    cargarMemoriaDesdeArchivo(pilaMemoria);
 
     cout << "\n--- Cola de procesos en CPU (ordenados por prioridad) ---\n";
     NodoCPU *actual = frente;
