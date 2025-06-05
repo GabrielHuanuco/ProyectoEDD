@@ -443,6 +443,12 @@ void menuPilaMemoria()
             int id, tam;
             cout << "ID del proceso: ";
             cin >> id;
+            // Validar que el ID no exista ya en la pila
+            if (buscarMemoriaPorID(pilaMemoria, id) != -1)
+            {
+                cout << "Error: El ID del proceso ya existe. Ingrese un ID diferente.\n";
+                break;  // Sale del case para pedir opción de nuevo
+            }
             cout << "Tamanio en MB: ";
             cin >> tam;
             int usada = memoriaUsada(pilaMemoria); 
