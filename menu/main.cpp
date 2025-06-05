@@ -282,99 +282,144 @@ void menuListaEnlazada()
 
 // ===================== GESTOR DE MEMORIA (PILA) =====================
 
-// Estructura para representar un bloque de memoria en la pila
-struct BloqueMemoria
+struct BloqueMemoria // Estructura para representar un bloque de memoria
 {
-    int ID_Proceso;           // ID del proceso que ocupa el bloque
-    int tamanio;              // Tamaño del bloque en MB
-    BloqueMemoria *siguiente; // Puntero al siguiente bloque en la pila
+    int ID_Proceso; // Identificador único del proceso
+    int tamanio; // Tamaño del proceso en MB
+    BloqueMemoria *siguiente; // Puntero al siguiente bloque en la lista
 };
 
-// -----------------------------------------------------------------------------
-// Asigna un bloque de memoria (push)
-void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio)
+void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio) // Función para asignar memoria a un proceso
 {
-    BloqueMemoria *nuevo = new BloqueMemoria; // Crea un nuevo bloque de memoria
-    nuevo->ID_Proceso = ID_Proceso;           // Asigna el ID del proceso
-    nuevo->tamanio = tamanio;                 // Asigna el tamaño del bloque
-    nuevo->siguiente = cima;                  // El nuevo bloque apunta al anterior
-    cima = nuevo;                             // El nuevo bloque es ahora la cima
-    cout << "Memoria asignada correctamente\n";
+    BloqueMemoria *nuevo = new BloqueMemoria; // Se crea un nuevo bloque de memoria
+    nuevo->ID_Proceso = ID_Proceso; // Se asigna el ID del proceso
+    nuevo->tamanio = tamanio; // Se asigna el tamaño del proceso
+    nuevo->siguiente = cima; // El nuevo bloque apunta al anterior que era la cima
+    cima = nuevo; // El nuevo bloque pasa a ser la cima de la pila
+    cout << "Memoria asignada correctamente\n"; // Mensaje de confirmación
 }
 
-// -----------------------------------------------------------------------------
-// Libera el bloque de memoria superior (pop)
-void LiberarMemoria(BloqueMemoria *&cima)
+void LiberarMemoriaPorID(BloqueMemoria *&cima, int id) // Función para liberar memoria de un proceso por su ID
 {
-    if (cima == NULL) // Si la pila está vacía
+    if (cima == NULL) // Si no hay bloques asignados
     {
-        cout << "No hay bloques de memoria asignados\n";
+        cout << "No hay bloques de memoria asignados\n"; // Mensaje informando que la lista está vacía
         return;
     }
-    cout << "Liberando memoria del proceso ID=" << cima->ID_Proceso << "\n";
-    BloqueMemoria *temp = cima; // Guarda temporalmente el bloque de memoria
-    cima = cima->siguiente;     // Mueve la cima al siguiente bloque
-    delete temp;                // Elimina el bloque que estaba en la cima
-}
 
-// -----------------------------------------------------------------------------
-// Muestra todos los bloques de memoria asignados
-void MostrarMemoria(BloqueMemoria *cima)
-{
-    if (cima == NULL)
+    BloqueMemoria *actual = cima; // Puntero temporal para recorrer la lista
+    BloqueMemoria *anterior = NULL; // Puntero para rastrear el nodo anterior
+
+    while (actual != NULL && actual->ID_Proceso != id) // Recorre la lista buscando el ID
     {
-        cout << "No hay bloques de memoria asignados\n";
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+
+    if (actual == NULL) // Si no se encontró el ID
+    {
+        cout << "No se encontró un bloque con ID " << id << "\n"; // Mensaje indicando que no se halló el proceso
         return;
     }
-    cout << "Bloques de memoria asignados:\n";
-    while (cima != NULL)
+
+    if (anterior == NULL) // Si el nodo a eliminar es el primero
     {
-        cout << "Proceso ID: " << cima->ID_Proceso << ", Tamanio: " << cima->tamanio << "MB\n";
-        cima = cima->siguiente;
+        cima = actual->siguiente; // Se mueve la cima al siguiente nodo
+    }
+    else // Si el nodo a eliminar está en medio o al final
+    {
+        anterior->siguiente = actual->siguiente; // Se salta el nodo actual
+    }
+
+    cout << "Liberando memoria del proceso ID=" << actual->ID_Proceso << "\n"; // Mensaje de liberación
+    delete actual; // Se elimina el nodo
+}
+
+void BuscarPorID(BloqueMemoria *cima, int id) // Función para buscar un proceso por su ID
+{
+    while (cima != NULL) // Recorre toda la lista
+    {
+        if (cima->ID_Proceso == id) // Si encuentra el ID solicitado
+        {
+            cout << "Proceso encontrado: ID=" << cima->ID_Proceso << ", Tamanio=" << cima->tamanio << "MB\n"; // Muestra datos
+            return;
+        }
+        cima = cima->siguiente; // Avanza al siguiente nodo
+    }
+    cout << "Proceso con ID=" << id << " no encontrado\n"; // Mensaje si no se encuentra el proceso
+}
+
+void MostrarMemoria(BloqueMemoria *cima) // Función para mostrar todos los bloques de memoria asignados
+{
+    if (cima == NULL) // Si la lista está vacía
+    {
+        cout << "No hay bloques de memoria asignados\n"; // Mensaje indicando vacío
+        return;
+    }
+    cout << "Bloques de memoria asignados:\n"; // Encabezado de la lista
+
+    while (cima != NULL) // Recorre toda la lista
+    {
+        cout << "Proceso ID: " << cima->ID_Proceso << ", Tamanio: " << cima->tamanio << "MB\n"; // Muestra cada nodo
+        cima = cima->siguiente; // Avanza al siguiente nodo
     }
 }
 
-// -----------------------------------------------------------------------------
-// Menú para gestión de memoria (pila)
-void menuPilaMemoria()
+int menuPilaMemoria()
 {
-    BloqueMemoria *pilaMemoria = NULL; // Pila de bloques de memoria (vacía al inicio)
-    int op;                            // Variable para almacenar la opción del usuario
+    BloqueMemoria *pilaMemoria = NULL; // Puntero inicial a la lista de bloques de memoria
+    int op; // Variable para guardar la opción del menú
+
     do
     {
-        // Muestra el submenú de memoria
+        // Menú de opciones
         cout << "\n ---- Gestion de Memoria ---- \n";
         cout << "1. Asignar Memoria \n";
-        cout << "2. Liberar Memoria \n";
+        cout << "2. Liberar Memoria por ID \n";
         cout << "3. Ver estado de la Memoria \n";
-        cout << "4. Volver al menú principal\n";
+        cout << "4. Buscar Proceso por ID \n";
+        cout << "5. Salir \n";
         cout << "Seleccione una opcion: ";
-        cin >> op;
-        switch (op)
+        cin >> op; // Entrada de la opción
+
+        switch (op) // Evaluación de la opción
         {
-        case 1:
-        {
-            int id, tam;
-            cout << "ID del proceso: ";
-            cin >> id;
-            cout << "Tamanio en MB: ";
-            cin >> tam;
-            AsignarMemoria(pilaMemoria, id, tam);
-            break;
+            case 1: {
+                int id, tam;
+                cout << "ID del proceso: ";
+                cin >> id;
+                cout << "Tamanio en MB: ";
+                cin >> tam;
+                AsignarMemoria(pilaMemoria, id, tam); // Llama a la función para asignar memoria
+                break;
+            }
+            case 2: {
+                int id;
+                cout << "Ingrese el ID del proceso a liberar: ";
+                cin >> id;
+                LiberarMemoriaPorID(pilaMemoria, id); // Llama a la función para liberar por ID
+                break;
+            }
+            case 3:
+                MostrarMemoria(pilaMemoria); // Llama a la función para mostrar la memoria
+                break;
+            case 4: {
+                int id;
+                cout << "Ingrese el ID del proceso a buscar: ";
+                cin >> id;
+                BuscarPorID(pilaMemoria, id); // Llama a la función para buscar un ID
+                break;
+            }
+            case 5:
+                cout << "Saliendo del programa...\n"; // Mensaje de salida
+                break;
+            default:
+                cout << "Opcion incorrecta\n"; // Mensaje si se ingresa una opción inválida
         }
-        case 2:
-            LiberarMemoria(pilaMemoria);
-            break;
-        case 3:
-            MostrarMemoria(pilaMemoria);
-            break;
-        case 4:
-            cout << "Volviendo al menú principal...\n";
-            break;
-        default:
-            cout << "Opcion incorrecta\n";
-        }
-    } while (op != 4);
+
+    } while (op != 5); // Se repite el menú hasta que se seleccione salir
+
+    return 0; // Fin del programa
 }
 
 // ===================== PLANIFICADOR DE CPU (COLA DE PRIORIDAD) =====================
