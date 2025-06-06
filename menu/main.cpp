@@ -337,7 +337,7 @@ void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio)
 }
 
 // -----------------------------------------------------------------------------
-// Libera el bloque de memoria por ID y guarda en archivo
+// Libera el bloque de memoria y guarda en archivo
 void LiberarMemoriaCima(BloqueMemoria *&cima)
 {
     if (cima == NULL) 
