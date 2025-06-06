@@ -415,7 +415,7 @@ void menuPilaMemoria()
         // Menú de opciones para la gestión de memoria
         cout << "\n ---- Gestion de Memoria ---- \n";
         cout << "1. Asignar Memoria \n";
-        cout << "2. Liberar Memoria por ID\n";
+        cout << "2. Liberar Memoria \n";
         cout << "3. Ver estado de la Memoria \n";
         cout << "4. Buscar Proceso por ID \n";
         cout << "5. Volver al menu principal\n";
