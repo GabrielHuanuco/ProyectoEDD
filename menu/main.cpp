@@ -452,9 +452,6 @@ void menuPilaMemoria()
         }
         case 2:
         {
-            int id;
-            cout << "Ingrese el ID del proceso a liberar: ";
-            cin >> id;
             LiberarMemoriaCima(pilaMemoria); // Llama a la función para liberar por ID
             break;
         }
