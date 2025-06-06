@@ -338,32 +338,18 @@ void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio)
 
 // -----------------------------------------------------------------------------
 // Libera el bloque de memoria por ID y guarda en archivo
-void LiberarMemoriaPorID(BloqueMemoria *&cima, int id)
+void LiberarMemoriaCima(BloqueMemoria *&cima)
 {
-    if (cima == NULL) // Si no hay bloques asignados
+    if (cima == NULL)
     {
-        cout << "No hay bloques de memoria asignados\n"; // Mensaje informando que la lista está vacía
+        cout << "No hay bloques de memoria asignados\n";
         return;
     }
-    BloqueMemoria *actual = cima;   // Puntero temporal para recorrer la pila
-    BloqueMemoria *anterior = NULL; // Puntero para rastrear el nodo anterior
-    while (actual != NULL && actual->ID_Proceso != id) //Busca el nodo que tenga el ID correspondiente 
-    {
-        anterior = actual; //Se guarda el nodo actual como "anterior"
-        actual = actual->siguiente; //Se avanza al siguiente nodo
-    }
-    if (actual == NULL) //Si se recorrio toda la pila y no se enocntro el ID
-    {
-        cout << "No se encontro memoria asignada para ese ID\n"; //Mensaje de error
-        return; //Salida de la funcion sin ningun cambio
-    }
-    if (anterior == NULL) //
-        cima = actual->siguiente; // Si el nodo a eliminar es el primero
-    else
-        anterior->siguiente = actual->siguiente; // Si el nodo a eliminar está en medio o al final
-    cout << "Memoria liberada para el proceso ID=" << id << "\n";
-    delete actual;                 // Libera la memoria del nodo eliminado
-    guardarMemoriaEnArchivo(cima); // Guarda la pila actualizada en el archivo
+
+    BloqueMemoria *temp = cima; // Guardamos el nodo que se eliminará
+    cima = cima->siguiente;     // Avanzamos la cima al siguiente nodo
+    cout << "Liberando memoria del proceso ID=" << temp->ID_Proceso << "\n";
+    delete temp;                // Eliminamos el nodo original de la cima
 }
 
 // -----------------------------------------------------------------------------
@@ -469,7 +455,7 @@ void menuPilaMemoria()
             int id;
             cout << "Ingrese el ID del proceso a liberar: ";
             cin >> id;
-            LiberarMemoriaPorID(pilaMemoria, id); // Llama a la función para liberar por ID
+            LiberarMemoriaCima(pilaMemoria); // Llama a la función para liberar por ID
             break;
         }
         case 3:
