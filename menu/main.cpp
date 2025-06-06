@@ -340,7 +340,7 @@ void AsignarMemoria(BloqueMemoria *&cima, int ID_Proceso, int tamanio)
 // Libera el bloque de memoria por ID y guarda en archivo
 void LiberarMemoriaCima(BloqueMemoria *&cima)
 {
-    if (cima == NULL)
+    if (cima == NULL) 
     {
         cout << "No hay bloques de memoria asignados\n";
         return;
@@ -383,7 +383,7 @@ int buscarMemoriaPorID(BloqueMemoria *cima, int idBuscar)
 }
 
 // -----------------------------------------------------------------------------
-// Busca un bloque de memoria por ID de proceso y muestra su información
+// Busca un bloque de memoria 
 void BuscarPorID(BloqueMemoria *cima, int id)
 {
     while (cima != NULL) // Recorre la pila mientras existan nodos
